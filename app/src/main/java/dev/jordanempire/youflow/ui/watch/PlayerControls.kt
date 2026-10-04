@@ -72,6 +72,8 @@ fun PlayerControls(
     fullscreen: Boolean,
     onToggleFullscreen: () -> Unit,
     onCollapse: () -> Unit,
+    onPull: (Float) -> Unit = {},
+    onPullEnd: () -> Unit = {},
     onSettings: () -> Unit,
     onChapters: () -> Unit = {},
     modifier: Modifier = Modifier
@@ -101,13 +103,14 @@ fun PlayerControls(
             .fillMaxSize()
             .pointerInput(fullscreen) {
                 if (fullscreen) return@pointerInput
-                // Swipe down on the inline player to minimize it to the mini player.
-                var total = 0f
+                // Dragging down moves the whole page with the finger; releasing decides in the app shell.
                 detectVerticalDragGestures(
-                    onDragStart = { total = 0f },
-                    onDragEnd = { if (total > 90.dp.toPx()) onCollapse() },
-                    onDragCancel = { total = 0f },
-                    onVerticalDrag = { _, dy -> total += dy }
+                    onDragEnd = onPullEnd,
+                    onDragCancel = onPullEnd,
+                    onVerticalDrag = { change, dy ->
+                        change.consume()
+                        onPull(dy)
+                    }
                 )
             }
             .pointerInput(fullscreen) {
@@ -224,6 +227,17 @@ fun PlayerControls(
             }
         }
 
+        // With the controls hidden, a hairline along the bottom edge still shows how far along it is.
+        if (!state.isLive && state.durationMs > 0) {
+            AnimatedVisibility(!visible, enter = fadeIn(), exit = fadeOut(), modifier = Modifier.align(Alignment.BottomCenter)) {
+                val position by engine.position.collectAsState()
+                val buffered by engine.buffered.collectAsState()
+                Box(Modifier.fillMaxWidth().height(3.dp).background(Color.White.copy(alpha = 0.2f))) {
+                    Box(Modifier.fillMaxWidth((buffered.toFloat() / state.durationMs).coerceIn(0f, 1f)).height(3.dp).background(Color.White.copy(alpha = 0.35f)))
+                    Box(Modifier.fillMaxWidth((position.toFloat() / state.durationMs).coerceIn(0f, 1f)).height(3.dp).background(MaterialTheme.colorScheme.primary))
+                }
+            }
+        }
         if (state.phase == Phase.Loading || state.phase == Phase.Buffering) {
             LoadingIndicator(Modifier.align(Alignment.Center).size(56.dp), color = Color.White)
         }

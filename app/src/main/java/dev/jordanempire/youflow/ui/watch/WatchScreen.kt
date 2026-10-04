@@ -129,6 +129,8 @@ fun WatchScreen(
     fullscreen: Boolean,
     onToggleFullscreen: () -> Unit,
     onCollapse: () -> Unit,
+    onPull: (Float) -> Unit,
+    onPullEnd: () -> Unit,
     vm: WatchViewModel = viewModel()
 ) {
     val engine = vm.engine
@@ -136,6 +138,11 @@ fun WatchScreen(
     val subscribed by vm.subscribed.collectAsState()
     val likedUrls by vm.likedUrls.collectAsState()
     val info = state.info
+    val prefs = dev.jordanempire.youflow.ui.settings.rememberPrefs()
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val showDescription = prefs.getBoolean(context.getString(dev.jordanempire.youflow.R.string.show_description_key), true)
+    val commentsEnabled = prefs.getBoolean(context.getString(dev.jordanempire.youflow.R.string.show_comments_key), true)
+    val showRelated = prefs.getBoolean(context.getString(dev.jordanempire.youflow.R.string.show_next_video_key), true)
     var showSettings by remember { mutableStateOf(false) }
     var showComments by remember { mutableStateOf(false) }
     var showChapters by remember { mutableStateOf(false) }
@@ -146,10 +153,9 @@ fun WatchScreen(
         ChaptersSheet(info.streamSegments, currentChapter(info.streamSegments, chapterPosition), onSeek = engine::seekTo) { showChapters = false }
     }
     if (showSettings) PlayerSettingsSheet(engine, state) { showSettings = false }
-    if (showComments) CommentsSheet(onDismiss = { showComments = false })
 
     if (fullscreen) {
-        PlayerBox(engine, state, fullscreen = true, onToggleFullscreen, onCollapse, { showSettings = true }, { showChapters = true }, Modifier.fillMaxSize().background(Color.Black))
+        PlayerBox(engine, state, fullscreen = true, onToggleFullscreen, onCollapse, onPull, onPullEnd, { showSettings = true }, { showChapters = true }, Modifier.fillMaxSize().background(Color.Black))
         return
     }
 
@@ -160,10 +166,16 @@ fun WatchScreen(
             fullscreen = false,
             onToggleFullscreen,
             onCollapse,
+            onPull,
+            onPullEnd,
             { showSettings = true },
             { showChapters = true },
             Modifier.fillMaxWidth().background(Color.Black).statusBarsPadding().aspectRatio(state.videoAspect.coerceIn(1f, 16f / 9f))
         )
+        if (showComments) {
+            CommentsPanel(onClose = { showComments = false }, modifier = Modifier.fillMaxSize())
+            return@Column
+        }
         LazyColumn(Modifier.fillMaxSize(), contentPadding = WindowInsets.navigationBars.asPaddingValues()) {
             val entry = state.entry
             item(key = "title") {
@@ -181,9 +193,9 @@ fun WatchScreen(
             if (info != null) {
                 item(key = "channel") { ChannelRow(info, subscribed, actions, onSubscribe = { vm.toggleSubscribe(info) }) }
                 item(key = "actions") { ActionRow(info, engine, liked = info.url in likedUrls, onLike = { vm.toggleLike(info) }, queueSize = state.queue.size, onQueue = { showQueue = true }, onSave = { actions.saveVideo(info.toVideoItemForSave()) }, onDownload = { actions.download(info.url) }) }
-                item(key = "description") { DescriptionCard(info, engine) }
-                item(key = "comments") { CommentsTeaser(info.url, onClick = { showComments = true }) }
-                val related = info.relatedItems.filterIsInstance<StreamInfoItem>()
+                if (showDescription) item(key = "description") { DescriptionCard(info, engine) }
+                if (commentsEnabled) item(key = "comments") { CommentsTeaser(info.url, onClick = { showComments = true }) }
+                val related = if (showRelated) info.relatedItems.filterIsInstance<StreamInfoItem>() else emptyList()
                 items(related, key = { it.url }) { item ->
                     VideoCard(
                         item.toVideoItem(),
@@ -207,6 +219,8 @@ private fun PlayerBox(
     fullscreen: Boolean,
     onToggleFullscreen: () -> Unit,
     onCollapse: () -> Unit,
+    onPull: (Float) -> Unit,
+    onPullEnd: () -> Unit,
     onSettings: () -> Unit,
     onChapters: () -> Unit,
     modifier: Modifier
@@ -220,20 +234,30 @@ private fun PlayerBox(
         )
         val audioOnly by engine.audioOnly.collectAsState()
         if (audioOnly) {
-            Column(
-                Modifier.fillMaxSize().background(Color.Black),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Icon(Icons.Rounded.Headphones, null, tint = Color.White, modifier = Modifier.size(40.dp))
-                Text("Audio only", color = Color.White, style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(top = 8.dp))
-                androidx.compose.material3.FilledTonalButton(
-                    onClick = { engine.setAudioOnly(false) },
-                    modifier = Modifier.padding(top = 12.dp)
-                ) { Text("Show video") }
+            Box(Modifier.fillMaxSize().background(Color.Black)) {
+                Thumbnail(
+                    state.info?.thumbnails?.let { ImageStrategy.choosePreferredImage(it) } ?: state.entry?.thumbnail,
+                    Modifier.fillMaxSize()
+                )
+                Box(Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.55f)))
             }
         }
-        PlayerControls(engine, state, fullscreen, onToggleFullscreen, onCollapse, onSettings, onChapters)
+        PlayerControls(engine, state, fullscreen, onToggleFullscreen, onCollapse, onPull, onPullEnd, onSettings, onChapters)
+        // After the controls so it can be tapped, and in the free space between the top icons.
+        if (audioOnly) {
+            androidx.compose.material3.Surface(
+                onClick = { engine.setAudioOnly(false) },
+                modifier = Modifier.align(Alignment.TopCenter).padding(top = 6.dp),
+                shape = RoundedCornerShape(50),
+                color = Color.Black.copy(alpha = 0.65f),
+                contentColor = Color.White
+            ) {
+                Row(Modifier.padding(horizontal = 12.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Rounded.Headphones, null, modifier = Modifier.size(16.dp))
+                    Text("Audio only · Show video", style = MaterialTheme.typography.labelMedium, modifier = Modifier.padding(start = 6.dp))
+                }
+            }
+        }
     }
 }
 

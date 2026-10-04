@@ -51,7 +51,7 @@ private val ThemeChoices = listOf(
 )
 
 @Composable
-fun SettingsScreen(onBack: () -> Unit, onOpenNavBar: () -> Unit, onOpenPreferences: (screen: String) -> Unit) {
+fun SettingsScreen(onBack: () -> Unit, onOpenPage: (route: String) -> Unit) {
     val context = LocalContext.current
     val app = context.applicationContext as Application
     val settings = remember { AppSettings.get(app) }
@@ -95,7 +95,7 @@ fun SettingsScreen(onBack: () -> Unit, onOpenNavBar: () -> Unit, onOpenPreferenc
                 ListItem(
                     headlineContent = { Text("Navigation bar") },
                     supportingContent = { Text(navOrder.filter { showShorts || it != "Shorts" }.joinToString(" · ")) },
-                    modifier = Modifier.clickable(onClick = onOpenNavBar)
+                    modifier = Modifier.clickable { onOpenPage("n|") }
                 )
             }
             item { Header("Playback") }
@@ -164,21 +164,21 @@ fun SettingsScreen(onBack: () -> Unit, onOpenNavBar: () -> Unit, onOpenPreferenc
                 ListItem(
                     headlineContent = { Text("Download settings") },
                     supportingContent = { Text("Folders, thread count, retries and mobile data") },
-                    modifier = Modifier.clickable { onOpenPreferences(dev.jordanempire.youflow.settings.PreferencesActivity.SCREEN_DOWNLOADS) }
+                    modifier = Modifier.clickable { onOpenPage("sd|") }
                 )
             }
             item {
                 ListItem(
                     headlineContent = { Text("Content settings") },
                     supportingContent = { Text("Country, language, restricted mode and feed options") },
-                    modifier = Modifier.clickable { onOpenPreferences(dev.jordanempire.youflow.settings.PreferencesActivity.SCREEN_CONTENT) }
+                    modifier = Modifier.clickable { onOpenPage("sc|") }
                 )
             }
             item {
                 ListItem(
                     headlineContent = { Text("New upload notifications") },
                     supportingContent = { Text("Check interval, network and per channel options") },
-                    modifier = Modifier.clickable { onOpenPreferences(dev.jordanempire.youflow.settings.PreferencesActivity.SCREEN_NOTIFICATIONS) }
+                    modifier = Modifier.clickable { onOpenPage("sn|") }
                 )
             }
             item {

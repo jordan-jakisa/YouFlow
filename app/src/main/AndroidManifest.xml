@@ -193,11 +193,6 @@
             android:exported="false" />
 
         <activity
-            android:name=".settings.PreferencesActivity"
-            android:exported="false"
-            android:theme="@style/DarkSettingsTheme" />
-
-        <activity
             android:name=".ui.DownloadHostActivity"
             android:exported="false"
             android:theme="@style/RouterActivityThemeDark" />

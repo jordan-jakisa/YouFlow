@@ -9,6 +9,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -35,6 +36,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -44,6 +46,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
@@ -64,7 +67,10 @@ import dev.jordanempire.youflow.ui.library.SaveToPlaylistSheet
 import dev.jordanempire.youflow.ui.model.VideoItem
 import dev.jordanempire.youflow.ui.playlist.PlaylistScreen
 import dev.jordanempire.youflow.ui.search.SearchScreen
+import dev.jordanempire.youflow.ui.settings.ContentSettingsScreen
+import dev.jordanempire.youflow.ui.settings.DownloadSettingsScreen
 import dev.jordanempire.youflow.ui.settings.NavBarScreen
+import dev.jordanempire.youflow.ui.settings.NotificationsSettingsScreen
 import dev.jordanempire.youflow.ui.settings.SettingsScreen
 import dev.jordanempire.youflow.ui.shorts.ShortsScreen
 import dev.jordanempire.youflow.ui.subscriptions.ManageSubscriptionsScreen
@@ -72,6 +78,7 @@ import dev.jordanempire.youflow.ui.subscriptions.SubscriptionsScreen
 import dev.jordanempire.youflow.ui.watch.MiniPlayer
 import dev.jordanempire.youflow.ui.watch.WatchScreen
 import dev.jordanempire.youflow.ui.you.YouScreen
+import kotlinx.coroutines.launch
 
 /** A request that came from outside the app: a shared link or text to search for. */
 sealed interface IncomingLink {
@@ -108,7 +115,7 @@ private fun VideoItem.toEntry() = QueueEntry(url, title, channel, thumbnail)
 
 @OptIn(UnstableApi::class)
 @Composable
-fun YouFlowApp(window: WatchWindowState, onOpenPreferences: (screen: String) -> Unit) {
+fun YouFlowApp(window: WatchWindowState) {
     val context = LocalContext.current
     val engine = remember { PlaybackEngine.get(context.applicationContext as Application) }
     val playerState by engine.state.collectAsState()
@@ -298,8 +305,11 @@ fun YouFlowApp(window: WatchWindowState, onOpenPreferences: (screen: String) -> 
                     "h" -> HistoryScreen(actions, ::pop)
                     "d" -> DownloadsScreen(::pop)
                     "m" -> ManageSubscriptionsScreen(actions, ::pop)
-                    "s" -> SettingsScreen(onBack = ::pop, onOpenNavBar = { push("n|") }, onOpenPreferences = onOpenPreferences)
+                    "s" -> SettingsScreen(onBack = ::pop, onOpenPage = ::push)
                     "n" -> NavBarScreen(onBack = ::pop)
+                    "sd" -> DownloadSettingsScreen(onBack = ::pop)
+                    "sc" -> ContentSettingsScreen(onBack = ::pop)
+                    "sn" -> NotificationsSettingsScreen(onBack = ::pop)
                     else -> PlaylistScreen(target, actions, ::pop)
                 }
             }
@@ -320,6 +330,15 @@ fun YouFlowApp(window: WatchWindowState, onOpenPreferences: (screen: String) -> 
         })
     }
 
+    // The watch page follows the finger while it is pulled down, then either settles back or slides away.
+    val pull = remember { androidx.compose.animation.core.Animatable(0f) }
+    val pullScope = androidx.compose.runtime.rememberCoroutineScope()
+    val screenHeightPx = with(androidx.compose.ui.platform.LocalDensity.current) {
+        androidx.compose.ui.platform.LocalConfiguration.current.screenHeightDp.dp.toPx()
+    }
+    LaunchedEffect(window.expanded) {
+        if (window.expanded) pull.snapTo(0f)
+    }
     AnimatedVisibility(
         visible = window.expanded && hasVideo,
         enter = fadeIn() + slideInVertically { it },
@@ -328,14 +347,36 @@ fun YouFlowApp(window: WatchWindowState, onOpenPreferences: (screen: String) -> 
         BackHandler {
             if (window.fullscreen) window.fullscreen = false else window.expanded = false
         }
-        WatchScreen(
-            actions = actions,
-            fullscreen = window.fullscreen,
-            onToggleFullscreen = { window.fullscreen = !window.fullscreen },
-            onCollapse = {
-                window.fullscreen = false
-                window.expanded = false
+        Box(
+            Modifier.graphicsLayer {
+                val progress = (pull.value / screenHeightPx).coerceIn(0f, 1f)
+                translationY = pull.value
+                alpha = 1f - 0.6f * progress
+                scaleX = 1f - 0.1f * progress
+                scaleY = 1f - 0.1f * progress
             }
-        )
+        ) {
+            WatchScreen(
+                actions = actions,
+                fullscreen = window.fullscreen,
+                onToggleFullscreen = { window.fullscreen = !window.fullscreen },
+                onCollapse = {
+                    window.fullscreen = false
+                    window.expanded = false
+                },
+                onPull = { dy -> pullScope.launch { pull.snapTo((pull.value + dy).coerceAtLeast(0f)) } },
+                onPullEnd = {
+                    pullScope.launch {
+                        if (pull.value > screenHeightPx * 0.18f) {
+                            pull.animateTo(screenHeightPx, androidx.compose.animation.core.tween(180))
+                            window.fullscreen = false
+                            window.expanded = false
+                        } else {
+                            pull.animateTo(0f, androidx.compose.animation.core.spring(dampingRatio = 0.8f, stiffness = 500f))
+                        }
+                    }
+                }
+            )
+        }
     }
 }
