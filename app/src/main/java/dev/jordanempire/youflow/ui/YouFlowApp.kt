@@ -59,6 +59,7 @@ import dev.jordanempire.youflow.R
 import dev.jordanempire.youflow.media.engine.PlaybackEngine
 import dev.jordanempire.youflow.media.engine.QueueEntry
 import dev.jordanempire.youflow.ui.channel.ChannelScreen
+import dev.jordanempire.youflow.ui.downloads.DownloadSheet
 import dev.jordanempire.youflow.ui.downloads.DownloadsScreen
 import dev.jordanempire.youflow.ui.home.HomeScreen
 import dev.jordanempire.youflow.ui.library.HistoryScreen
@@ -130,6 +131,7 @@ fun YouFlowApp(window: WatchWindowState) {
     if (tab !in tabs) tab = tabs.first()
     var searching by rememberSaveable { mutableStateOf(false) }
     var saving by remember { mutableStateOf<VideoItem?>(null) }
+    var downloadUrl by remember { mutableStateOf<String?>(null) }
     var searchText by rememberSaveable { mutableStateOf<String?>(null) }
     // Pushed screens on top of the tabs: "c|<channel url>" or "p|<playlist url>".
     var stack by rememberSaveable { mutableStateOf(ArrayList<String>()) }
@@ -168,13 +170,15 @@ fun YouFlowApp(window: WatchWindowState) {
             repo.hideChannel(url)
             android.widget.Toast.makeText(context, "You'll see less from this channel", android.widget.Toast.LENGTH_SHORT).show()
         },
+        notInterested = { video ->
+            repo.markNotInterested(video.url)
+            android.widget.Toast.makeText(context, "Got it, you won't see this again", android.widget.Toast.LENGTH_SHORT).show()
+        },
         openHistory = {
             push("h|")
             window.expanded = false
         },
-        download = { url ->
-            context.startActivity(Intent(context, DownloadHostActivity::class.java).putExtra(DownloadHostActivity.EXTRA_URL, url))
-        },
+        download = { url -> downloadUrl = url },
         openDownloads = {
             push("d|")
             window.expanded = false
@@ -318,6 +322,7 @@ fun YouFlowApp(window: WatchWindowState) {
     }
 
     saving?.let { SaveToPlaylistSheet(it, onDismiss = { saving = null }) }
+    downloadUrl?.let { DownloadSheet(it, onDismiss = { downloadUrl = null }) }
 
     AnimatedVisibility(
         visible = searching,
@@ -351,7 +356,6 @@ fun YouFlowApp(window: WatchWindowState) {
             Modifier.graphicsLayer {
                 val progress = (pull.value / screenHeightPx).coerceIn(0f, 1f)
                 translationY = pull.value
-                alpha = 1f - 0.6f * progress
                 scaleX = 1f - 0.1f * progress
                 scaleY = 1f - 0.1f * progress
             }
