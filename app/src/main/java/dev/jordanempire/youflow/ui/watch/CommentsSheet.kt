@@ -1,13 +1,18 @@
 package dev.jordanempire.youflow.ui.watch
 
 import android.app.Application
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -17,16 +22,16 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.PushPin
 import androidx.compose.material.icons.rounded.ThumbUp
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -159,26 +164,31 @@ fun CommentsTeaser(url: String, onClick: () -> Unit, vm: CommentsViewModel = vie
     }
 }
 
+/** Comments docked under the player, so the video stays visible and keeps playing above them. */
 @Composable
-fun CommentsSheet(onDismiss: () -> Unit, vm: CommentsViewModel = viewModel()) {
+fun CommentsPanel(onClose: () -> Unit, modifier: Modifier = Modifier, vm: CommentsViewModel = viewModel()) {
     val ui by vm.ui.collectAsState()
     val listState = rememberLazyListState()
+    BackHandler(onBack = onClose)
     LaunchedEffect(listState) {
         snapshotFlow { listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index to listState.layoutInfo.totalItemsCount }
             .collect { (last, total) -> if (last != null && total > 0 && last >= total - 4) vm.loadMore() }
     }
-    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)) {
-        Text(
-            if (ui.count > 0) "Comments  ${ui.count}" else "Comments",
-            style = MaterialTheme.typography.titleMediumEmphasized,
-            modifier = Modifier.padding(horizontal = 20.dp, vertical = 4.dp)
-        )
+    Column(modifier) {
+        Row(Modifier.fillMaxWidth().padding(start = 20.dp, end = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                if (ui.count > 0) "Comments  ${ui.count}" else "Comments",
+                style = MaterialTheme.typography.titleMediumEmphasized,
+                modifier = Modifier.weight(1f)
+            )
+            IconButton(onClick = onClose) { Icon(Icons.Rounded.Close, contentDescription = "Close comments") }
+        }
         when {
             ui.loading -> LoadingBox(Modifier.height(240.dp))
 
             ui.items.isEmpty() -> Text("No comments yet.", modifier = Modifier.padding(20.dp), color = MaterialTheme.colorScheme.onSurfaceVariant)
 
-            else -> LazyColumn(state = listState, modifier = Modifier.navigationBarsPadding()) {
+            else -> LazyColumn(state = listState, modifier = Modifier.fillMaxSize(), contentPadding = WindowInsets.navigationBars.asPaddingValues()) {
                 items(ui.items, key = { it.id.ifEmpty { it.text + it.author } }) { comment ->
                     CommentRow(comment, onToggleReplies = { vm.toggleReplies(comment) }, expandedReplies = ui.replies[comment.id])
                 }
