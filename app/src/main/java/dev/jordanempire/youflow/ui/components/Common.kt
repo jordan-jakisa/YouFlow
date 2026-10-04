@@ -119,7 +119,7 @@ fun ErrorBox(error: UiState.Error, onRetry: () -> Unit, modifier: Modifier = Mod
 @Composable
 fun Avatar(url: String?, name: String, size: androidx.compose.ui.unit.Dp, modifier: Modifier = Modifier) {
     val shape = androidx.compose.foundation.shape.CircleShape
-    if (url != null) {
+    if (!url.isNullOrBlank()) {
         Thumbnail(
             url,
             modifier.size(size).clip(shape).background(MaterialTheme.colorScheme.secondaryContainer)

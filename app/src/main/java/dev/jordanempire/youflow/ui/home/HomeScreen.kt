@@ -72,6 +72,15 @@ class HomeViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
+    /** Takes a video (or every video of a channel) out of the list on screen and out of the saved copy. */
+    fun dismiss(predicate: (VideoItem) -> Boolean) {
+        val current = (_state.value as? UiState.Content)?.data ?: return
+        val kept = current.filterNot(predicate)
+        _state.value = UiState.Content(kept)
+        val kiosk = kiosks.getOrNull(_selected.value) ?: return
+        viewModelScope.launch { ListCache.write(getApplication(), "home-${kiosk.id}", kept) }
+    }
+
     fun select(index: Int) {
         if (index == _selected.value) return
         _selected.value = index
@@ -180,7 +189,16 @@ fun HomeScreen(actions: AppActions, contentPadding: PaddingValues, vm: HomeViewM
                         onSave = { actions.saveVideo(video) },
                         onPlayNext = { actions.playNext(video) },
                         onEnqueue = { actions.enqueue(video) },
-                        onHideChannel = video.channelUrl?.let { url -> { actions.hideChannel(url) } }
+                        onHideChannel = video.channelUrl?.let { url ->
+                            {
+                                actions.hideChannel(url)
+                                vm.dismiss { it.channelUrl == url }
+                            }
+                        },
+                        onNotInterested = {
+                            actions.notInterested(video)
+                            vm.dismiss { it.url == video.url }
+                        }
                     )
                 }
             }

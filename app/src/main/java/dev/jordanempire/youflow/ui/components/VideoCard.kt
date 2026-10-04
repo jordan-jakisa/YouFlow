@@ -55,7 +55,8 @@ fun VideoCard(
     onSave: (() -> Unit)? = null,
     onPlayNext: (() -> Unit)? = null,
     onEnqueue: (() -> Unit)? = null,
-    onHideChannel: (() -> Unit)? = null
+    onHideChannel: (() -> Unit)? = null,
+    onNotInterested: (() -> Unit)? = null
 ) {
     Column(modifier.fillMaxWidth().clickable(onClick = onClick).padding(bottom = 16.dp)) {
         Box(Modifier.padding(horizontal = 12.dp)) {
@@ -109,6 +110,18 @@ fun VideoCard(
                             DropdownMenuItem(text = { Text("Add to queue") }, onClick = {
                                 menu = false
                                 onEnqueue()
+                            })
+                        }
+                        if (onNotInterested != null) {
+                            DropdownMenuItem(text = { Text("Not interested") }, onClick = {
+                                menu = false
+                                onNotInterested()
+                            })
+                        }
+                        if (onHideChannel != null) {
+                            DropdownMenuItem(text = { Text("Don't recommend channel") }, onClick = {
+                                menu = false
+                                onHideChannel()
                             })
                         }
                     }

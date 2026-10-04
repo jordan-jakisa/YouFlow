@@ -78,6 +78,7 @@ class SubscriptionsViewModel(app: Application) : AndroidViewModel(app) {
     val error = _error.asStateFlow()
 
     init {
+        viewModelScope.launch { runCatching { repo.fillMissingAvatars() } }
         viewModelScope.launch {
             reload()
             if (_feed.value.isEmpty()) refresh()

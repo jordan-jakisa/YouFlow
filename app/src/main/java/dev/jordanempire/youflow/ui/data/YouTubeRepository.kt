@@ -127,6 +127,14 @@ class YouTubeRepository(private val context: Context) {
 
     fun hiddenChannels(): Set<String> = hiddenPrefs.getStringSet("hidden_channels", emptySet()).orEmpty()
 
+    fun notInterested(): Set<String> = hiddenPrefs.getStringSet("not_interested", emptySet()).orEmpty()
+
+    /** The video never shows up in "For you" again. Kept to the latest 500 so the set stays small. */
+    fun markNotInterested(videoUrl: String) {
+        val updated = (notInterested() - videoUrl).toList() + videoUrl
+        hiddenPrefs.edit().putStringSet("not_interested", updated.takeLast(500).toSet()).apply()
+    }
+
     fun hideChannel(channelUrl: String) {
         hiddenPrefs.edit().putStringSet("hidden_channels", hiddenChannels() + channelUrl).apply()
     }
@@ -165,6 +173,7 @@ class YouTubeRepository(private val context: Context) {
         val liked = likedVideos().first()
         val subscribed = subscriptions().first()
         val hidden = hiddenChannels()
+        val dismissed = notInterested()
         val watched = history.map { it.streamEntity.url }.toSet() + liked.map { it.url }
 
         val seeds = LinkedHashMap<String, Double>() // url -> weight
@@ -243,6 +252,7 @@ class YouTubeRepository(private val context: Context) {
         }
 
         val ranked = items.values
+            .filter { it.url !in dismissed }
             .filter { it.url !in watched && !it.isShort && (it.durationSeconds == 0L || it.durationSeconds > 60) }
             .filter { it.channelUrl == null || it.channelUrl !in hidden }
             .map { video ->
@@ -574,6 +584,29 @@ class YouTubeRepository(private val context: Context) {
         notify = notificationMode == 1,
         uid = uid
     )
+
+    /**
+     * Channels that came from an import have no picture stored. Fetch their channel pages (a few at a
+     * time) and save the avatar; the subscriptions list updates itself as each one lands.
+     */
+    suspend fun fillMissingAvatars() = withContext(Dispatchers.IO) {
+        val manager = SubscriptionManager(context)
+        val missing = manager.subscriptions().firstOrError().await().filter { it.avatarUrl.isNullOrBlank() && !it.url.isNullOrBlank() }
+        if (missing.isEmpty()) return@withContext
+        val limiter = kotlinx.coroutines.sync.Semaphore(3)
+        kotlinx.coroutines.coroutineScope {
+            missing.map { sub ->
+                async {
+                    limiter.withPermit {
+                        runCatching {
+                            val info = ExtractorHelper.getChannelInfo(serviceId, sub.url!!, false).await()
+                            manager.updateChannelInfo(info).await()
+                        }
+                    }
+                }
+            }.awaitAll()
+        }
+    }
 
     suspend fun setNotifications(channelUrl: String, enabled: Boolean) = withContext(Dispatchers.IO) {
         SubscriptionManager(context).updateNotificationMode(serviceId, channelUrl, if (enabled) 1 else 0).await()

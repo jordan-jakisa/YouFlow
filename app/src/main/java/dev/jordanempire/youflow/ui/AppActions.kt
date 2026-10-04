@@ -13,6 +13,7 @@ data class AppActions(
     val openLocalPlaylist: (id: Long) -> Unit,
     val openHistory: () -> Unit,
     val hideChannel: (channelUrl: String) -> Unit,
+    val notInterested: (video: VideoItem) -> Unit,
     val openManageSubscriptions: () -> Unit,
     val download: (url: String) -> Unit,
     val openDownloads: () -> Unit,
