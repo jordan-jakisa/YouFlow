@@ -101,13 +101,13 @@ configure<ApplicationExtension> {
             signingConfig = signingConfigs.getByName("debug")
             isDefault = true
 
-            // suffix the app id and the app name with git branch name
-            if (normalizedWorkingBranch.isEmpty() || workingBranch in defaultBranches) {
-                applicationIdSuffix = ".continuous"
-                resValue("string", "app_name", "YouFlow Continuous")
+            // This is the build the README tells people to install, so it is named plain YouFlow.
+            // The app id still gets the branch suffix, so it installs next to a debug build.
+            resValue("string", "app_name", "YouFlow")
+            applicationIdSuffix = if (normalizedWorkingBranch.isEmpty() || workingBranch in defaultBranches) {
+                ".continuous"
             } else {
-                applicationIdSuffix = ".continuous.$normalizedWorkingBranch"
-                resValue("string", "app_name", "YouFlow Continuous")
+                ".continuous.$normalizedWorkingBranch"
             }
         }
     }

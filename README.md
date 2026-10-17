@@ -86,7 +86,7 @@ export ANDROID_HOME="$HOME/Library/Android/sdk"   # macOS; on Linux usually $HOM
 ```
 
 Both install the optimised build (minified like a release, signed with your own debug key). It
-shows up on the phone as **YouFlow Continuous**. To update later, `git pull`,
+shows up on the phone as **YouFlow**. To update later, `git pull`,
 `git submodule update`, and run the same step again; your data stays.
 
 ### Installing without USB
