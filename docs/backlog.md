@@ -18,7 +18,7 @@ UI, and can build and install it on their phone by following the README.
 | Rename the GitHub repo `NewPipe` to `YouFlow` | done 2026-10-17 | Jordan approved in chat. https://github.com/jordan-jakisa/YouFlow; GitHub redirects the old URL. README clone URL and the F-Droid recipe updated. |
 | Set a YouFlow description on the repo | done 2026-10-17 | Jordan approved the wording in chat. |
 | Set topics on the repo | done 2026-10-17 | Jordan approved in chat: android, youtube-client, newpipe, material3, jetpack-compose, kotlin, privacy, no-ads. |
-| Remove the newpipe.net homepage from the repo | open, waiting on Jordan | Contradicts the README line about not using NewPipe's name. |
+| Remove the newpipe.net homepage from the repo | done 2026-10-17 | Jordan approved in chat; homepage is empty. |
 | Make `youtube-only` the default branch | open, waiting on Jordan | Default is `dev`, which shows NewPipe's README. |
 | README build section tested from a fresh clone (JDK, Android Studio or SDK, submodules, build, install over USB) | done 2026-10-17 | Fresh `git clone --recurse-submodules` from GitHub with an empty Gradle cache: JDK 17 alone fails (`languageVersion=21` toolchain missing), JDK 17 plus 21 builds `assembleContinuous`; APK installed over adb. Android Studio's Run path not tested (no Android Studio on this Mac). |
 | Phone screenshots from a clean profile in `fastlane/.../phoneScreenshots` | done 2026-10-17 | Home, player, Shorts, download sheet. Jordan's Pixel 8a over wireless adb, separate "YouFlow Continuous" app with empty data, only Blender Studio (CC BY) on screen, status bar cropped. |
