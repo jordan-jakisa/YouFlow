@@ -19,10 +19,16 @@ UI, and can build and install it on their phone by following the README.
 | Set a YouFlow description and topics on the repo | open, waiting on Jordan | Current description is NewPipe's. |
 | Remove the newpipe.net homepage from the repo | open, waiting on Jordan | Contradicts the README line about not using NewPipe's name. |
 | Make `youtube-only` the default branch | open, waiting on Jordan | Default is `dev`, which shows NewPipe's README. |
-| README build section tested from a fresh clone (JDK, Android Studio or SDK, submodules, build, install over USB) | in progress | |
-| Phone screenshots from a clean profile in `fastlane/.../phoneScreenshots` | in progress | Jordan's Pixel 8a over wireless adb, separate "YouFlow Continuous" app with empty data. No YouTube logo; Creative Commons videos on screen. |
-| 20 to 30 second screen recording (home, player, Shorts, downloads) | in progress | |
-| README: 2 or 3 screenshots at the top | in progress | |
+| README build section tested from a fresh clone (JDK, Android Studio or SDK, submodules, build, install over USB) | done 2026-10-17 | Fresh `git clone --recurse-submodules` from GitHub with an empty Gradle cache: JDK 17 alone fails (`languageVersion=21` toolchain missing), JDK 17 plus 21 builds `assembleContinuous`; APK installed over adb. Android Studio's Run path not tested (no Android Studio on this Mac). |
+| Phone screenshots from a clean profile in `fastlane/.../phoneScreenshots` | done 2026-10-17 | Home, player, Shorts, download sheet. Jordan's Pixel 8a over wireless adb, separate "YouFlow Continuous" app with empty data, only Blender Studio (CC BY) on screen, status bar cropped. |
+| 20 to 30 second screen recording (home, player, Shorts, downloads) | done 2026-10-17 | `docs/media/youflow-demo.mp4`, 30 s, 540 px wide, 2.6 MB. A comment preview with a stranger's avatar is visible for a few seconds. |
+| README: 3 screenshots, the demo link and build-and-install steps at the top | done 2026-10-17 | |
+| Bug: with the app theme set to Dark on a phone in light mode, status bar icons stayed dark on dark | done 2026-10-17 | System bar style follows the app theme. |
+| Bug: feed and channel-tab video cards showed a letter instead of the channel avatar | done 2026-10-17 | Avatar filled from the subscription or the channel. |
+| Bug: an unplayable Short showed a black screen; a tiny cached Shorts list was never replaced, so the pager could not swipe | done 2026-10-17 | Message "This Short can't be played"; a cached list under 6 items is replaced by the fresh one. |
+| Bug: Subscriptions feed kept an unsubscribed channel's videos until pull to refresh | done 2026-10-17 | Feed reloads when the subscription list changes. Unit tests pass; not yet checked on the phone (adb dropped). |
+| Shorts with few subscriptions fall back to a `#shorts` search, which shows strangers' videos (on a clean profile: a family video with children) | open | Product decision for Jordan: keep the fallback, or show "Subscribe to channels" instead. |
+| Built app is named "YouFlow Continuous" with id `...continuous.youtubeonly` for anyone who builds from `youtube-only` | open | Branch names in `app/build.gradle.kts` `defaultBranches`; decide after the default-branch change. Changing it gives Jordan's own builds a new app id. |
 | Developer verification note and user install guidance | done 2026-10-17 | [developer-verification.md](developer-verification.md). |
 | Signed release APK, GitHub Release, release workflow, repo signing secrets | not planned 2026-10-17 | Jordan: source only, see Decisions. |
 | Release keystore in `~/keys/youflow/` (made before the source-only decision) | open, Jordan | Unused. Keep or delete, Jordan's call. |

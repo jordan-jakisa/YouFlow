@@ -100,14 +100,19 @@ class ShortsViewModel(app: Application) : AndroidViewModel(app) {
             try {
                 val fresh = repo.shorts()
                 if (fresh.isNotEmpty()) ListCache.write(getApplication(), "shorts", fresh)
-                // Do not swap the list under the user's finger when cached shorts are already playing.
-                if (cached == null) _state.value = UiState.Content(fresh)
+                // Do not swap the list under the user's finger when cached shorts are already playing,
+                // unless the cached list is too short to swipe through.
+                if (cached == null || (cached.size < MIN_CACHED && fresh.size > cached.size)) _state.value = UiState.Content(fresh)
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Throwable) {
                 if (cached == null) _state.value = e.toUiError()
             }
         }
+    }
+
+    private companion object {
+        const val MIN_CACHED = 6
     }
 }
 
@@ -147,6 +152,7 @@ private fun ShortsPager(items: List<VideoItem>, player: ShortsPlayer, actions: A
     val liked by vm.likedUrls.collectAsState()
     val pager = rememberPagerState { items.size }
     val loadingSlots by player.loading.collectAsState()
+    val failed by player.failed.collectAsState()
     var paused by remember { mutableStateOf(false) }
 
     LaunchedEffect(pager, items) {
@@ -159,7 +165,8 @@ private fun ShortsPager(items: List<VideoItem>, player: ShortsPlayer, actions: A
     // One page either side is composed too, so the next short's first frame is already drawn.
     VerticalPager(pager, Modifier.fillMaxSize(), beyondViewportPageCount = 1) { page ->
         val item = items[page]
-        val loading = (page % 3) in loadingSlots
+        val unplayable = item.url in failed
+        val loading = !unplayable && (page % 3) in loadingSlots
         Box(
             Modifier.fillMaxSize().pointerInput(page) {
                 detectTapGestures(onTap = {
@@ -177,8 +184,17 @@ private fun ShortsPager(items: List<VideoItem>, player: ShortsPlayer, actions: A
                 )
             }
             // The poster stays until the first frame is ready.
-            if (loading || kotlin.math.abs(page - pager.currentPage) > 1) {
+            if (loading || unplayable || kotlin.math.abs(page - pager.currentPage) > 1) {
                 Thumbnail(item.thumbnail, Modifier.fillMaxSize(), contentDescription = null)
+            }
+            if (unplayable) {
+                Column(
+                    Modifier.align(Alignment.Center).clip(MaterialTheme.shapes.large).background(Color.Black.copy(alpha = 0.7f)).padding(20.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text("This Short can't be played", color = Color.White, style = MaterialTheme.typography.titleMedium)
+                    Text("Swipe up for the next one", color = Color.White.copy(alpha = 0.8f), style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(top = 4.dp))
+                }
             }
             Box(Modifier.fillMaxSize().background(Brush.verticalGradient(0.55f to Color.Transparent, 1f to Color.Black.copy(alpha = 0.75f))))
             Column(Modifier.align(Alignment.BottomStart).padding(start = 16.dp, end = 72.dp, bottom = 20.dp)) {
@@ -223,7 +239,7 @@ private fun ShortsPager(items: List<VideoItem>, player: ShortsPlayer, actions: A
             if (page == pager.currentPage) ShortsProgress(player, page, Modifier.align(Alignment.BottomCenter))
             if (page == pager.currentPage) {
                 if (loading) LoadingIndicator(Modifier.align(Alignment.Center).size(48.dp), color = Color.White)
-                if (paused) Icon(Icons.Rounded.PlayArrow, null, tint = Color.White.copy(alpha = 0.9f), modifier = Modifier.align(Alignment.Center).size(72.dp))
+                if (paused && !unplayable) Icon(Icons.Rounded.PlayArrow, null, tint = Color.White.copy(alpha = 0.9f), modifier = Modifier.align(Alignment.Center).size(72.dp))
             }
         }
     }

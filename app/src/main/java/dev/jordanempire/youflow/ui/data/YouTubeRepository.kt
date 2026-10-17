@@ -291,7 +291,9 @@ class YouTubeRepository(private val context: Context) {
             .getStreams(groupId, true, true, false)
             .awaitSingleOrNull()
             .orEmpty()
-        streams.map { it.stream.toVideo(it.stateProgressMillis) }
+        // Stored feed streams have no uploader picture; use the one saved with the subscription.
+        val avatars = subscriptions().first().filter { !it.avatar.isNullOrBlank() }.associate { it.url to it.avatar }
+        streams.map { it.stream.toVideo(it.stateProgressMillis).let { v -> v.copy(avatar = avatars[v.channelUrl]) } }
     }
 
     fun feedGroups(): Flow<List<FeedGroupItem>> = FeedDatabaseManager(context).groups().toObservable().asFlow().map { list ->

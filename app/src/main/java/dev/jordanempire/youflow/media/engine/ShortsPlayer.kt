@@ -71,6 +71,11 @@ class ShortsPlayer(private val app: Application) {
     /** Slots that have a short assigned but no frame ready yet. */
     val loading: StateFlow<Set<Int>> = _loading.asStateFlow()
 
+    private val _failed = MutableStateFlow<Set<String>>(emptySet())
+
+    /** Shorts that could not be loaded (removed, private, blocked in this country). */
+    val failed: StateFlow<Set<String>> = _failed.asStateFlow()
+
     init {
         slots.forEachIndexed { index, slot ->
             slot.exo.addListener(object : Player.Listener {
@@ -119,6 +124,7 @@ class ShortsPlayer(private val app: Application) {
                 }
                 val source = resolver.resolve(info)
                 if (source == null) {
+                    _failed.value = _failed.value + url
                     _loading.value = _loading.value - index
                     return@launch
                 }
@@ -129,6 +135,7 @@ class ShortsPlayer(private val app: Application) {
                 throw e
             } catch (e: Throwable) {
                 Log.e("ShortsPlayer", "load failed for $url", e)
+                _failed.value = _failed.value + url
                 slot.url = null
                 _loading.value = _loading.value - index
             }

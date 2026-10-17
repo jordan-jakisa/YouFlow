@@ -133,7 +133,7 @@ class ChannelViewModel(app: Application, private val url: String) : AndroidViewM
             _items.value = try {
                 val page = repo.channelTab(handler, null)
                 next = page.next
-                UiState.Content(page.items)
+                UiState.Content(withAvatar(page.items))
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Throwable) {
@@ -152,7 +152,7 @@ class ChannelViewModel(app: Application, private val url: String) : AndroidViewM
             try {
                 val more = repo.channelTab(handler, page)
                 next = more.next
-                _items.value = UiState.Content(current + more.items)
+                _items.value = UiState.Content(current + withAvatar(more.items))
             } catch (e: CancellationException) {
                 throw e
             } catch (_: Throwable) {
@@ -160,6 +160,12 @@ class ChannelViewModel(app: Application, private val url: String) : AndroidViewM
             }
             loadingMore = false
         }
+    }
+
+    // Videos on a channel tab carry no uploader picture; it is the channel's own.
+    private fun withAvatar(items: List<ContentItem>): List<ContentItem> {
+        val avatar = loaded?.details?.avatar ?: return items
+        return items.map { if (it is VideoItem && it.avatar == null) it.copy(avatar = avatar) else it }
     }
 
     fun toggleSubscribe(details: ChannelDetails) {

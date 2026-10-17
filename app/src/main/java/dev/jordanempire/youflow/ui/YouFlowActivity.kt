@@ -7,6 +7,7 @@ import android.content.res.Configuration
 import android.os.Bundle
 import android.util.Rational
 import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.material3.Surface
@@ -49,6 +50,13 @@ class YouFlowActivity : ComponentActivity() {
                 AppSettings.THEME_LIGHT -> false
                 AppSettings.THEME_DARK, AppSettings.THEME_BLACK -> true
                 else -> androidx.compose.foundation.isSystemInDarkTheme()
+            }
+            // System bar icons follow the app theme, which can differ from the system dark mode.
+            LaunchedEffect(dark) {
+                enableEdgeToEdge(
+                    statusBarStyle = SystemBarStyle.auto(android.graphics.Color.TRANSPARENT, android.graphics.Color.TRANSPARENT) { dark },
+                    navigationBarStyle = SystemBarStyle.auto(LIGHT_SCRIM, DARK_SCRIM) { dark }
+                )
             }
             YouFlowTheme(darkTheme = dark, dynamicColor = dynamic, pureBlack = themeMode == AppSettings.THEME_BLACK) {
                 Surface {
@@ -172,6 +180,10 @@ class YouFlowActivity : ComponentActivity() {
     private companion object {
         const val ACTION_OPEN_DOWNLOADS = "dev.jordanempire.youflow.OPEN_DOWNLOADS"
         const val ACTION_PIP_TOGGLE = "dev.jordanempire.youflow.PIP_TOGGLE"
+
+        // The scrims androidx.activity uses by default, for three-button navigation.
+        const val LIGHT_SCRIM = 0xE6FFFFFF.toInt()
+        const val DARK_SCRIM = 0x801B1B1B.toInt()
     }
 
     // Leave only audio running while the app is not visible.
