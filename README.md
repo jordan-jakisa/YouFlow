@@ -59,7 +59,7 @@ a USB cable.
 NewPipeExtractor is a git submodule, so clone with `--recurse-submodules`:
 
 ```
-git clone --recurse-submodules https://github.com/jordan-jakisa/NewPipe YouFlow
+git clone --recurse-submodules https://github.com/jordan-jakisa/YouFlow
 ```
 
 If you already cloned without it, run `git submodule update --init` inside the folder.

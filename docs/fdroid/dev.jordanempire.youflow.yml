@@ -10,12 +10,12 @@ Categories:
   - Online Media Player
 License: GPL-3.0-or-later
 AuthorName: Jordan Mungujakisa
-WebSite: https://github.com/jordan-jakisa/NewPipe
-SourceCode: https://github.com/jordan-jakisa/NewPipe
-IssueTracker: https://github.com/jordan-jakisa/NewPipe/issues
+WebSite: https://github.com/jordan-jakisa/YouFlow
+SourceCode: https://github.com/jordan-jakisa/YouFlow
+IssueTracker: https://github.com/jordan-jakisa/YouFlow/issues
 
 RepoType: git
-Repo: https://github.com/jordan-jakisa/NewPipe
+Repo: https://github.com/jordan-jakisa/YouFlow
 
 Builds:
   - versionName: 0.1.0

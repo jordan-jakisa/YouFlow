@@ -15,7 +15,7 @@ UI, and can build and install it on their phone by following the README.
 | Push the 5 unpushed commits on `youtube-only` after build and unit tests pass | done 2026-10-17 | `assembleRelease assembleContinuous testDebugUnitTest`: 101 tests, 0 failures. |
 | Fix CI: it failed on every push since 2026-10-03 (NewPipeExtractor submodule not checked out) | done 2026-10-17 | `submodules: true` in `ci.yml`. |
 | Continuous build on a feature branch was labelled "YouFlow Debug" | done 2026-10-17 | Now "YouFlow Continuous". |
-| Rename the GitHub repo `NewPipe` to `YouFlow` | open, waiting on Jordan | GitHub redirects the old URL. Show, then ask. |
+| Rename the GitHub repo `NewPipe` to `YouFlow` | done 2026-10-17 | Jordan approved in chat. https://github.com/jordan-jakisa/YouFlow; GitHub redirects the old URL. README clone URL and the F-Droid recipe updated. |
 | Set a YouFlow description and topics on the repo | open, waiting on Jordan | Current description is NewPipe's. |
 | Remove the newpipe.net homepage from the repo | open, waiting on Jordan | Contradicts the README line about not using NewPipe's name. |
 | Make `youtube-only` the default branch | open, waiting on Jordan | Default is `dev`, which shows NewPipe's README. |
