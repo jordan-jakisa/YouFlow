@@ -1,5 +1,6 @@
 package dev.jordanempire.youflow.ui.shorts
 
+import dev.jordanempire.youflow.ui.model.ChannelItem
 import dev.jordanempire.youflow.ui.model.VideoItem
 import kotlin.random.Random
 
@@ -23,4 +24,14 @@ fun mergeChannelShorts(perChannel: List<List<VideoItem>>, random: Random = Rando
 fun appendNewShorts(showing: List<VideoItem>, fresh: List<VideoItem>): List<VideoItem> {
     val known = showing.mapTo(HashSet()) { it.url }
     return showing + fresh.filter { it.url !in known }
+}
+
+/**
+ * Only the shorts whose channel is in [subscribed]. Matched by channel URL, or by name for saved
+ * shorts that have no channel URL.
+ */
+fun keepSubscribed(shorts: List<VideoItem>, subscribed: List<ChannelItem>): List<VideoItem> {
+    val urls = subscribed.mapTo(HashSet()) { it.url }
+    val names = subscribed.mapTo(HashSet()) { it.name }
+    return shorts.filter { short -> short.channelUrl?.let { it in urls } ?: (short.channel in names) }
 }

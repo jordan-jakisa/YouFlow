@@ -76,6 +76,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -102,31 +103,43 @@ class ShortsViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     private suspend fun onSubscriptionsChanged() {
-        val showing = (_state.value as? UiState.Content)?.data
-        if (showing.isNullOrEmpty()) _state.value = UiState.Loading
+        val subscribed = repo.subscriptions().first()
+        val showing = (_state.value as? UiState.Content)?.data.orEmpty().let { keepSubscribed(it, subscribed) }
+        _state.value = if (showing.isEmpty() && subscribed.isNotEmpty()) UiState.Loading else UiState.Content(showing)
+        if (subscribed.isEmpty()) {
+            ListCache.write(getApplication(), CACHE_KEY, emptyList())
+            return
+        }
         val fresh = try {
             repo.shorts()
         } catch (e: CancellationException) {
             throw e
         } catch (e: Throwable) {
-            if (showing.isNullOrEmpty()) _state.value = e.toUiError()
+            if (showing.isEmpty()) _state.value = e.toUiError()
             return
         }
-        if (fresh.isNotEmpty()) ListCache.write(getApplication(), CACHE_KEY, fresh)
         // New shorts go after the ones already on screen, so nothing moves under the user's finger.
-        _state.value = UiState.Content(appendNewShorts(showing.orEmpty(), fresh))
+        val merged = appendNewShorts(showing, fresh)
+        ListCache.write(getApplication(), CACHE_KEY, merged)
+        _state.value = UiState.Content(merged)
     }
 
     fun load() {
         viewModelScope.launch {
-            val cached = ListCache.read(getApplication(), CACHE_KEY)
-            _state.value = if (cached != null) UiState.Content(cached.shuffled()) else UiState.Loading
+            val subscribed = repo.subscriptions().first()
+            // A saved list can hold shorts from channels unsubscribed since; never show those.
+            val cached = ListCache.read(getApplication(), CACHE_KEY)?.let { keepSubscribed(it, subscribed) }?.shuffled()
+            _state.value = if (cached != null) UiState.Content(cached) else UiState.Loading
+            if (subscribed.isEmpty()) {
+                _state.value = UiState.Content(emptyList())
+                return@launch
+            }
             try {
                 val fresh = repo.shorts()
-                if (fresh.isNotEmpty()) ListCache.write(getApplication(), CACHE_KEY, fresh)
-                // Do not swap the list under the user's finger when cached shorts are already playing,
-                // unless the cached list is too short to swipe through.
-                if (cached == null || (cached.size < MIN_CACHED && fresh.size > cached.size)) _state.value = UiState.Content(fresh)
+                // Keep the shorts already showing in place and add the new ones after them.
+                val merged = appendNewShorts(cached.orEmpty(), fresh)
+                ListCache.write(getApplication(), CACHE_KEY, merged)
+                _state.value = UiState.Content(merged)
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Throwable) {
@@ -136,8 +149,6 @@ class ShortsViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     private companion object {
-        const val MIN_CACHED = 6
-
         // "shorts" held lists that were padded with a #shorts search; never show those again.
         const val CACHE_KEY = "shorts-subscriptions"
     }

@@ -565,7 +565,7 @@ class YouTubeRepository(private val context: Context) {
                             val tab = loaded.details.tabs.firstOrNull { it.key == "shorts" }
                                 ?: return@runCatching emptyList()
                             channelTab(loaded.handlers[tab.index], null).items.filterIsInstance<VideoItem>()
-                                .map { it.copy(channel = it.channel.ifBlank { channel.name }, avatar = it.avatar ?: channel.avatar) }
+                                .map { it.copy(channel = it.channel.ifBlank { channel.name }, channelUrl = channel.url, avatar = it.avatar ?: channel.avatar) }
                         }.getOrDefault(emptyList())
                     }
                 }

@@ -1,8 +1,10 @@
 package dev.jordanempire.youflow.ui
 
+import dev.jordanempire.youflow.ui.model.ChannelItem
 import dev.jordanempire.youflow.ui.model.VideoItem
 import dev.jordanempire.youflow.ui.shorts.ShortsPage
 import dev.jordanempire.youflow.ui.shorts.appendNewShorts
+import dev.jordanempire.youflow.ui.shorts.keepSubscribed
 import dev.jordanempire.youflow.ui.shorts.mergeChannelShorts
 import dev.jordanempire.youflow.ui.shorts.shortsPages
 import kotlin.random.Random
@@ -73,4 +75,22 @@ class ShortsPagesTest {
         val fresh = listOf(short("a"), short("b"))
         assertEquals(fresh, appendNewShorts(emptyList(), fresh))
     }
+
+    private fun channel(name: String) = ChannelItem(url = "https://www.youtube.com/channel/$name", name = name, avatar = null, subscribers = null, description = null)
+
+    @Test
+    fun unsubscribedChannelsShortsAreDropped() {
+        val shorts = listOf(short("a", "Blender Studio"), short("b", "Marques Brownlee"), short("c", "Marc Lou"))
+        val kept = keepSubscribed(shorts, listOf(channel("Blender Studio")))
+        assertEquals(listOf("a"), kept.map { it.url.substringAfterLast('/') })
+    }
+
+    @Test
+    fun savedShortsWithoutChannelUrlMatchByName() {
+        val saved = listOf(short("a", "Blender Studio").copy(channelUrl = null), short("b", "Marc Lou").copy(channelUrl = null))
+        assertEquals(listOf("a"), keepSubscribed(saved, listOf(channel("Blender Studio"))).map { it.url.substringAfterLast('/') })
+    }
+
+    @Test
+    fun noSubscriptionsKeepNothing() = assertTrue(keepSubscribed(listOf(short("a")), emptyList()).isEmpty())
 }

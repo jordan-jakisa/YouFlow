@@ -33,6 +33,7 @@ UI, and can build and install it on their phone by following the README.
 | On a fresh install Home opens on the "Live" chip (random livestreams) until there is history, likes or a subscription | open, Jordan | Intended in `HomeViewModel`: first YouTube list, and Live comes first because YouTube dropped Trending. Product choice: keep Live, start on Trending music, or start on For you with an empty-state prompt. |
 | Developer verification note and user install guidance | done 2026-10-17 | [developer-verification.md](developer-verification.md). |
 | Signed release APK, GitHub Release, release workflow, repo signing secrets | not planned 2026-10-17 | Jordan: source only, see Decisions. |
+| Bug: Shorts kept showing an unsubscribed channel's Shorts (saved list and the list on screen) | done 2026-10-18 | Found on the phone after unsubscribing Marc Lou and Marques Brownlee in the test app. Saved and shown Shorts are now filtered to current subscriptions. 3 more tests in `ShortsPagesTest`. |
 | Leave GitHub's fork network | not planned 2026-10-17 | Jordan: stays a fork, see Decisions. |
 | Release keystore in `~/keys/youflow/` (made before the source-only decision) | open, Jordan | Unused. Keep or delete, Jordan's call. |
 | Move Jordan's data from "YouFlow Debug" to the optimised build (now labelled "YouFlow") on his phone (Export backup, Restore backup) | open, Jordan | After the screenshots; he wants to use the optimised build. |
