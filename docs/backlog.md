@@ -19,7 +19,7 @@ UI, and can build and install it on their phone by following the README.
 | Set a YouFlow description on the repo | done 2026-10-17 | Jordan approved the wording in chat. |
 | Set topics on the repo | done 2026-10-17 | Jordan approved in chat: android, youtube-client, newpipe, material3, jetpack-compose, kotlin, privacy, no-ads. |
 | Remove the newpipe.net homepage from the repo | done 2026-10-17 | Jordan approved in chat; homepage is empty. |
-| Make `youtube-only` the default branch | open, waiting on Jordan | Default is `dev`, which shows NewPipe's README. |
+| Make `youtube-only` the default branch | done 2026-10-17 | Jordan approved in chat. Visitors now see the YouFlow README. |
 | README build section tested from a fresh clone (JDK, Android Studio or SDK, submodules, build, install over USB) | done 2026-10-17 | Fresh `git clone --recurse-submodules` from GitHub with an empty Gradle cache: JDK 17 alone fails (`languageVersion=21` toolchain missing), JDK 17 plus 21 builds `assembleContinuous`; APK installed over adb. Android Studio's Run path not tested (no Android Studio on this Mac). |
 | Phone screenshots from a clean profile in `fastlane/.../phoneScreenshots` | done 2026-10-17 | Home, player, Shorts, download sheet. Jordan's Pixel 8a over wireless adb, separate "YouFlow Continuous" app with empty data, only Blender Studio (CC BY) on screen, status bar cropped. |
 | 20 to 30 second screen recording (home, player, Shorts, downloads) | done 2026-10-17 | `docs/media/youflow-demo.mp4`, 30 s, 540 px wide, 2.6 MB. A comment preview with a stranger's avatar is visible for a few seconds. |
