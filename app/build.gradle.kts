@@ -107,7 +107,7 @@ configure<ApplicationExtension> {
                 resValue("string", "app_name", "YouFlow Continuous")
             } else {
                 applicationIdSuffix = ".continuous.$normalizedWorkingBranch"
-                resValue("string", "app_name", "YouFlow Debug")
+                resValue("string", "app_name", "YouFlow Continuous")
             }
         }
     }
