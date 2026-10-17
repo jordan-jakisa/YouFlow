@@ -28,11 +28,12 @@ UI, and can build and install it on their phone by following the README.
 | Bug: feed and channel-tab video cards showed a letter instead of the channel avatar | done 2026-10-17 | Avatar filled from the subscription or the channel. |
 | Bug: an unplayable Short showed a black screen; a tiny cached Shorts list was never replaced, so the pager could not swipe | done 2026-10-17 | Message "This Short can't be played"; a cached list under 6 items is replaced by the fresh one. |
 | Bug: Subscriptions feed kept an unsubscribed channel's videos until pull to refresh | done 2026-10-17 | Feed reloads when the subscription list changes. Unit tests pass; not yet checked on the phone (adb dropped). |
-| Shorts with few subscriptions fall back to a `#shorts` search, which shows strangers' videos (on a clean profile: a family video with children) | open | Product decision for Jordan: keep the fallback, or show "Subscribe to channels" instead. |
+| Shorts: replace the random `#shorts` search fallback with a "Subscribe to channels" prompt | done 2026-10-17 | Shorts come only from subscribed channels. None: empty state "No Shorts yet" with one "Find channels" button that opens search. Some: those Shorts, then a closing page "You're all caught up" with the same button. New subscriptions show up without a restart. Old cache key retired so padded lists never show again. 8 unit tests in `ShortsPagesTest`. Empty state and Find channels checked on the emulator; on Jordan's phone the feed shows only that app's subscriptions. |
 | The build the README installs was named "YouFlow Continuous" | done 2026-10-17 | Now "YouFlow" (app id unchanged, `...continuous.youtubeonly`, so existing installs update in place). Checked from a fresh clone of the default branch: `./gradlew installContinuous` onto the emulator, label "YouFlow". Debug builds stay "YouFlow Debug"; the README never makes one. |
 | On a fresh install Home opens on the "Live" chip (random livestreams) until there is history, likes or a subscription | open, Jordan | Intended in `HomeViewModel`: first YouTube list, and Live comes first because YouTube dropped Trending. Product choice: keep Live, start on Trending music, or start on For you with an empty-state prompt. |
 | Developer verification note and user install guidance | done 2026-10-17 | [developer-verification.md](developer-verification.md). |
 | Signed release APK, GitHub Release, release workflow, repo signing secrets | not planned 2026-10-17 | Jordan: source only, see Decisions. |
+| Leave GitHub's fork network | not planned 2026-10-17 | Jordan: stays a fork, see Decisions. |
 | Release keystore in `~/keys/youflow/` (made before the source-only decision) | open, Jordan | Unused. Keep or delete, Jordan's call. |
 | Move Jordan's data from "YouFlow Debug" to the optimised build (now labelled "YouFlow") on his phone (Export backup, Restore backup) | open, Jordan | After the screenshots; he wants to use the optimised build. |
 
@@ -52,6 +53,9 @@ UI, and can build and install it on their phone by following the README.
 | 2026-10-17 | YouFlow is not registered with Google's Android developer verification, under any Google identity. | Jordan ("No i will not do that") | Keeps an ad-free YouTube client with downloads off his Google identity. Building and installing over ADB stays exempt in 2027. [developer-verification.md](developer-verification.md) |
 | 2026-10-17 | YouFlow ships as source only: no release APK, no signing key, no repo secrets, no release workflow. People build it and install it on their own phone. | Jordan ("it's just an open source project that anyone can compile and run on their phone") | Replaces the earlier plan the same day to sign APKs on GitHub Actions ("You can compile the apk in gthub releases"), then "We will not sign it". |
 | 2026-10-17 | Screenshots and the clip are made on Jordan's Pixel 8a over wireless adb. | Jordan ("You can use py androudid p[hjhone over wireless adb for screenshots and all") | Real device instead of the emulator. |
+
+| 2026-10-17 | Shorts never fall back to a `#shorts` search; with too few Shorts from subscriptions the screen asks the user to subscribe. | Jordan ("Replace the random Shorts fallback with a 'Subscribe to channels' prompt.") | On a clean profile the fallback showed strangers' videos, including a family video with children. |
+| 2026-10-17 | YouFlow stays a GitHub fork of NewPipe; it does not leave the fork network. | Jordan ("Keep YouFlow as a fork of NewPipe.") | Known effect: GitHub search hides forks by default, so discovery comes from the X post and the repo topics, not GitHub search. |
 
 ## Checks
 

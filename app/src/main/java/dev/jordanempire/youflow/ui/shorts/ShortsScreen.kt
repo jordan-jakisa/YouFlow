@@ -22,11 +22,13 @@ import androidx.compose.material.icons.outlined.ThumbUp
 import androidx.compose.material.icons.rounded.OpenInFull
 import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material.icons.rounded.Share
+import androidx.compose.material.icons.rounded.Subscriptions
 import androidx.compose.material.icons.rounded.ThumbUp
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -72,6 +74,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -91,15 +95,35 @@ class ShortsViewModel(app: Application) : AndroidViewModel(app) {
 
     init {
         load()
+        // A new subscription should show up here without restarting the app.
+        viewModelScope.launch {
+            repo.subscriptions().map { list -> list.map { it.url }.toSet() }.distinctUntilChanged().drop(1).collect { onSubscriptionsChanged() }
+        }
+    }
+
+    private suspend fun onSubscriptionsChanged() {
+        val showing = (_state.value as? UiState.Content)?.data
+        if (showing.isNullOrEmpty()) _state.value = UiState.Loading
+        val fresh = try {
+            repo.shorts()
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Throwable) {
+            if (showing.isNullOrEmpty()) _state.value = e.toUiError()
+            return
+        }
+        if (fresh.isNotEmpty()) ListCache.write(getApplication(), CACHE_KEY, fresh)
+        // New shorts go after the ones already on screen, so nothing moves under the user's finger.
+        _state.value = UiState.Content(appendNewShorts(showing.orEmpty(), fresh))
     }
 
     fun load() {
         viewModelScope.launch {
-            val cached = ListCache.read(getApplication(), "shorts")
+            val cached = ListCache.read(getApplication(), CACHE_KEY)
             _state.value = if (cached != null) UiState.Content(cached.shuffled()) else UiState.Loading
             try {
                 val fresh = repo.shorts()
-                if (fresh.isNotEmpty()) ListCache.write(getApplication(), "shorts", fresh)
+                if (fresh.isNotEmpty()) ListCache.write(getApplication(), CACHE_KEY, fresh)
                 // Do not swap the list under the user's finger when cached shorts are already playing,
                 // unless the cached list is too short to swipe through.
                 if (cached == null || (cached.size < MIN_CACHED && fresh.size > cached.size)) _state.value = UiState.Content(fresh)
@@ -113,6 +137,9 @@ class ShortsViewModel(app: Application) : AndroidViewModel(app) {
 
     private companion object {
         const val MIN_CACHED = 6
+
+        // "shorts" held lists that were padded with a #shorts search; never show those again.
+        const val CACHE_KEY = "shorts-subscriptions"
     }
 }
 
@@ -138,7 +165,7 @@ fun ShortsScreen(actions: AppActions, contentPadding: PaddingValues, vm: ShortsV
             is UiState.Error -> ErrorBox(s, vm::load)
 
             is UiState.Content -> if (s.data.isEmpty()) {
-                MessageBox("No Shorts yet", "Subscribe to channels and their Shorts will show up here.")
+                Surface(Modifier.fillMaxSize()) { SubscribePrompt(first = true, onFind = actions.openSearch) }
             } else {
                 ShortsPager(s.data, player, actions, vm)
             }
@@ -150,7 +177,8 @@ fun ShortsScreen(actions: AppActions, contentPadding: PaddingValues, vm: ShortsV
 private fun ShortsPager(items: List<VideoItem>, player: ShortsPlayer, actions: AppActions, vm: ShortsViewModel) {
     val context = LocalContext.current
     val liked by vm.likedUrls.collectAsState()
-    val pager = rememberPagerState { items.size }
+    val pages = remember(items) { shortsPages(items) }
+    val pager = rememberPagerState { pages.size }
     val loadingSlots by player.loading.collectAsState()
     val failed by player.failed.collectAsState()
     var paused by remember { mutableStateOf(false) }
@@ -158,13 +186,17 @@ private fun ShortsPager(items: List<VideoItem>, player: ShortsPlayer, actions: A
     LaunchedEffect(pager, items) {
         snapshotFlow { pager.settledPage }.collect { page ->
             paused = false
-            player.focus(page, items.map { it.url })
+            if (pages.getOrNull(page) is ShortsPage.Short) player.focus(page, items.map { it.url }) else player.pauseAll()
         }
     }
 
     // One page either side is composed too, so the next short's first frame is already drawn.
     VerticalPager(pager, Modifier.fillMaxSize(), beyondViewportPageCount = 1) { page ->
-        val item = items[page]
+        val item = (pages[page] as? ShortsPage.Short)?.video
+        if (item == null) {
+            Surface(Modifier.fillMaxSize()) { SubscribePrompt(first = false, onFind = actions.openSearch) }
+            return@VerticalPager
+        }
         val unplayable = item.url in failed
         val loading = !unplayable && (page % 3) in loadingSlots
         Box(
@@ -243,6 +275,22 @@ private fun ShortsPager(items: List<VideoItem>, player: ShortsPlayer, actions: A
             }
         }
     }
+}
+
+/** Shorts only come from subscriptions: say so, and offer one way to find channels. */
+@Composable
+private fun SubscribePrompt(first: Boolean, onFind: () -> Unit) {
+    MessageBox(
+        title = if (first) "No Shorts yet" else "You're all caught up",
+        body = if (first) {
+            "Shorts here come from the channels you subscribe to. Find a few channels you like and subscribe."
+        } else {
+            "That's every Short from your channels. Subscribe to more channels to see more here."
+        },
+        actionLabel = "Find channels",
+        onAction = onFind,
+        icon = Icons.Rounded.Subscriptions
+    )
 }
 
 @Composable

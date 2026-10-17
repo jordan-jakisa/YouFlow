@@ -142,6 +142,11 @@ class ShortsPlayer(private val app: Application) {
         }
     }
 
+    /** Nothing plays, for example on the closing page after the last short. */
+    fun pauseAll() {
+        slots.forEach { it.exo.playWhenReady = false }
+    }
+
     fun togglePlayPause(page: Int) {
         val exo = exoFor(page)
         exo.playWhenReady = !exo.playWhenReady

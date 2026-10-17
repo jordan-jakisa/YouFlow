@@ -20,6 +20,7 @@ import dev.jordanempire.youflow.ui.model.KioskRef
 import dev.jordanempire.youflow.ui.model.PlaylistDetails
 import dev.jordanempire.youflow.ui.model.PlaylistItem
 import dev.jordanempire.youflow.ui.model.VideoItem
+import dev.jordanempire.youflow.ui.shorts.mergeChannelShorts
 import dev.jordanempire.youflow.util.ExtractorHelper
 import dev.jordanempire.youflow.util.KioskTranslator
 import dev.jordanempire.youflow.util.image.ImageStrategy
@@ -547,14 +548,15 @@ class YouTubeRepository(private val context: Context) {
     )
 
     /**
-     * Shorts from the channels you subscribe to (their Shorts tab), newest mix first. With no
-     * subscriptions it falls back to a search for #shorts, because the extractor has no global feed.
+     * Shorts from the channels you subscribe to (their Shorts tab), shuffled. Nothing else: with no
+     * subscriptions this is empty and the Shorts screen asks the user to subscribe, instead of filling
+     * the feed with strangers' videos from a search.
      */
     suspend fun shorts(): List<VideoItem> {
         val channels = subscriptions().first().take(8)
         // Fetch a few channels at a time instead of one after the other.
         val limiter = kotlinx.coroutines.sync.Semaphore(4)
-        val fromChannels = kotlinx.coroutines.coroutineScope {
+        val perChannel = kotlinx.coroutines.coroutineScope {
             channels.map { channel ->
                 async {
                     limiter.withPermit {
@@ -567,12 +569,9 @@ class YouTubeRepository(private val context: Context) {
                         }.getOrDefault(emptyList())
                     }
                 }
-            }.awaitAll().flatten()
+            }.awaitAll()
         }
-        if (fromChannels.size >= 6) return fromChannels.shuffled()
-        val searched = runCatching { search("#shorts").items }.getOrDefault(emptyList())
-            .filterIsInstance<VideoItem>().filter { it.isShort || (it.durationSeconds in 1..61) }
-        return (fromChannels + searched).distinctBy { it.url }.shuffled()
+        return mergeChannelShorts(perChannel)
     }
 
     fun isSubscribed(url: String): Flow<Boolean> = subscriptions().map { list -> list.any { it.url == url } }

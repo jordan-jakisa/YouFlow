@@ -39,7 +39,8 @@ fun MessageBox(
     body: String? = null,
     actionLabel: String? = null,
     onAction: (() -> Unit)? = null,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    icon: androidx.compose.ui.graphics.vector.ImageVector = Icons.Rounded.ErrorOutline
 ) {
     Column(
         modifier.fillMaxSize().padding(32.dp),
@@ -48,7 +49,7 @@ fun MessageBox(
     ) {
         Surface(shape = CircleShape, color = MaterialTheme.colorScheme.secondaryContainer, modifier = Modifier.size(72.dp)) {
             Box(contentAlignment = Alignment.Center) {
-                Icon(Icons.Rounded.ErrorOutline, contentDescription = null, tint = MaterialTheme.colorScheme.onSecondaryContainer)
+                Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.onSecondaryContainer)
             }
         }
         Spacer(Modifier.height(16.dp))

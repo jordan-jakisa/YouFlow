@@ -23,5 +23,7 @@ data class AppActions(
     val saveVideo: (video: VideoItem) -> Unit,
     /** Plays [videos] as a queue starting at [index]. */
     val playVideos: (videos: List<VideoItem>, index: Int) -> Unit,
-    val openSettings: () -> Unit
+    val openSettings: () -> Unit,
+    /** Opens search with an empty query, for finding channels to subscribe to. */
+    val openSearch: () -> Unit
 )

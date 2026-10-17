@@ -199,6 +199,11 @@ fun YouFlowApp(window: WatchWindowState) {
         openSettings = {
             push("s|")
             window.expanded = false
+        },
+        openSearch = {
+            searchText = null
+            searching = true
+            window.expanded = false
         }
     )
 
