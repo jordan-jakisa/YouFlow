@@ -32,6 +32,7 @@ UI, and can build and install it on their phone by following the README.
 | The build the README installs was named "YouFlow Continuous" | done 2026-10-17 | Now "YouFlow" (app id unchanged, `...continuous.youtubeonly`, so existing installs update in place). Checked from a fresh clone of the default branch: `./gradlew installContinuous` onto the emulator, label "YouFlow". Debug builds stay "YouFlow Debug"; the README never makes one. |
 | On a fresh install Home opens on the "Live" chip (random livestreams) until there is history, likes or a subscription | open, Jordan | Intended in `HomeViewModel`: first YouTube list, and Live comes first because YouTube dropped Trending. Product choice: keep Live, start on Trending music, or start on For you with an empty-state prompt. |
 | Developer verification note and user install guidance | done 2026-10-17 | [developer-verification.md](developer-verification.md). |
+| Launch post on X (@heylengu) | done 2026-10-18 | https://x.com/heylengu/status/2111574501888581863, sent 2026-10-18 00:46 EAT after Jordan approved it. 18 s demo in an Easlo-style frame, from the Pixel 8a recording. Baseline at posting: 0 stars, 0 forks, GitHub traffic 20 views / 1 unique visitor. Issues or questions from launch traffic go to Jordan before anyone replies. |
 | Signed release APK, GitHub Release, release workflow, repo signing secrets | not planned 2026-10-17 | Jordan: source only, see Decisions. |
 | Bug: Shorts kept showing an unsubscribed channel's Shorts (saved list and the list on screen) | done 2026-10-18 | Found on the phone after unsubscribing Marc Lou and Marques Brownlee in the test app. Saved and shown Shorts are now filtered to current subscriptions. 3 more tests in `ShortsPagesTest`. |
 | Leave GitHub's fork network | not planned 2026-10-17 | Jordan: stays a fork, see Decisions. |
@@ -62,4 +63,5 @@ UI, and can build and install it on their phone by following the README.
 
 | Date | What to look at |
 |---|---|
+| 2026-10-21 | Launch results on github.com/jordan-jakisa/YouFlow: stars, forks, and Insights > Traffic (views, unique visitors, referring sites), against the baseline of 0 stars, 0 forks, 20 views / 1 unique at posting. Also new issues and discussions, raised to Jordan before any reply. |
 | 2027-01-15 | Google's developer verification FAQ and timeline: the exact 2027 date, changes to the advanced flow, whether F-Droid installs are covered. Update the README. |
