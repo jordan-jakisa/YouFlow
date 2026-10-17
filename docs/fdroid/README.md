@@ -36,6 +36,7 @@ Status: the repository is prepared; nothing has been submitted. Checked against 
 
 ## Done
 
+- Phone screenshots in `images/phoneScreenshots/` (2026-10-17, clean profile, Blender Studio CC BY videos).
 - 512x512 icon in `fastlane/metadata/android/en-US/images/icon.png`.
 - Tag `v0.1.0` and the `youtube-only` branch are pushed to GitHub; the tag's hash is in the recipe.
 - Icon changed from saturated red to the soft rose of the app palette, so it does not read as YouTube's red play button.
@@ -44,9 +45,7 @@ Status: the repository is prepared; nothing has been submitted. Checked against 
 
 ## Still to do
 
-1. Phone screenshots in `images/phoneScreenshots/` (use a clean profile: the Home and Subscriptions
-   screens show your own history and channels, and thumbnails are other people's artwork).
-2. Fork https://gitlab.com/fdroid/fdroiddata, add `metadata/dev.jordanempire.youflow.yml`, commit as
+1. Fork https://gitlab.com/fdroid/fdroiddata, add `metadata/dev.jordanempire.youflow.yml`, commit as
    `New App: dev.jordanempire.youflow`, open a merge request. Its CI runs the real `fdroid build`; a
    local `fdroid build -l` only works inside F-Droid's build server image (it needs their
    `gradlew-fdroid`), so it was not run. Listing appears about 24 to 48 hours after merge.

@@ -1,12 +1,25 @@
 # YouFlow
 
-A free, private YouTube client for Android with a Material 3 Expressive interface. YouFlow is a
-fork of [NewPipe](https://github.com/TeamNewPipe/NewPipe): the YouTube parsing comes from
-[NewPipeExtractor](https://github.com/TeamNewPipe/NewPipeExtractor), the screens and the player are
-new.
+A free, private YouTube client for Android with a Material 3 Expressive interface. No ads, no
+account, no Google services. YouFlow is a fork of [NewPipe](https://github.com/TeamNewPipe/NewPipe):
+the YouTube parsing comes from [NewPipeExtractor](https://github.com/TeamNewPipe/NewPipeExtractor),
+the screens and the player are new.
 
-YouFlow is not affiliated with NewPipe, TeamNewPipe or NewPipe e.V. and does not use their name or
-branding.
+<p>
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/1_home.jpg" width="30%" alt="Home feed">
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/2_player.jpg" width="30%" alt="Video player">
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/3_shorts.jpg" width="30%" alt="Shorts">
+</p>
+
+[Watch the 30 second demo](docs/media/youflow-demo.mp4) (home, player, downloads, Shorts).
+
+YouFlow is source only: there is no APK to download. You build it on your computer and install it on
+your phone over USB, which takes about 20 minutes the first time. Steps are in
+[Build and install](#build-and-install).
+
+YouFlow is not affiliated with YouTube, Google, NewPipe, TeamNewPipe or NewPipe e.V. and does not use
+their name or branding. Videos on the screenshots are from
+[Blender Studio](https://studio.blender.org) (CC BY).
 
 ## Features
 
@@ -23,19 +36,73 @@ branding.
 
 Android 12 (API 31) or newer. English only.
 
-## Building
+## Build and install
 
-Needs JDK 17 or newer and the Android SDK. NewPipeExtractor is a git submodule pinned to one commit,
-so clone with submodules:
+You need a computer (Windows, macOS or Linux) with about 10 GB free, an Android 12 or newer phone, and
+a USB cable.
+
+### 1. Install the tools
+
+- **JDK 17 and JDK 21**, both. The app builds with Java 21 and NewPipeExtractor with Java 17, and
+  Gradle does not download them for you. Get Temurin
+  [17](https://adoptium.net/temurin/releases/?version=17) and
+  [21](https://adoptium.net/temurin/releases/?version=21) from adoptium.net (macOS with Homebrew:
+  `brew install --cask temurin@17 temurin@21`; Debian or Ubuntu:
+  `sudo apt install openjdk-17-jdk openjdk-21-jdk`). With one missing, the build stops with
+  "Cannot find a Java installation on your machine matching languageVersion=21" (or 17).
+- **Android Studio** from [developer.android.com/studio](https://developer.android.com/studio), which
+  brings the Android SDK. (If you only want the terminal, the Android SDK command-line tools work too.)
+- **Git**, from [git-scm.com](https://git-scm.com/downloads) if you do not have it.
+
+### 2. Get the code
+
+NewPipeExtractor is a git submodule, so clone with `--recurse-submodules`:
 
 ```
-git clone --recurse-submodules https://github.com/jordan-jakisa/NewPipe
-cd NewPipe
-./gradlew assembleRelease     # unsigned APK in app/build/outputs/apk/release
-./gradlew testDebugUnitTest
+git clone --recurse-submodules https://github.com/jordan-jakisa/NewPipe YouFlow
 ```
 
-Style is checked with ktlint: `./gradlew :app:runKtlint` and `./gradlew :app:formatKtlint`.
+If you already cloned without it, run `git submodule update --init` inside the folder.
+
+### 3. Get your phone ready
+
+1. On the phone, open Settings, About phone, and tap **Build number** seven times. Developer options
+   are now on.
+2. Open Settings, System, Developer options, and turn on **USB debugging**.
+3. Plug the phone into the computer and tap **Allow** on the "Allow USB debugging?" prompt.
+
+### 4. Build and install
+
+**With Android Studio:** open the `YouFlow` folder (File, Open), wait for the Gradle sync to finish
+(the first one downloads a lot), pick your phone in the device list at the top, and press **Run**.
+
+**From a terminal:** tell Gradle where the Android SDK is (Android Studio shows the path in Settings,
+Languages and Frameworks, Android SDK), then build and install:
+
+```
+cd YouFlow
+export ANDROID_HOME="$HOME/Library/Android/sdk"   # macOS; on Linux usually $HOME/Android/Sdk
+./gradlew installContinuous                       # Windows: gradlew.bat installContinuous
+```
+
+Both install the optimised build (minified like a release, signed with your own debug key). It
+shows up on the phone as **YouFlow Continuous**. To update later, `git pull`,
+`git submodule update`, and run the same step again; your data stays.
+
+### Installing without USB
+
+`./gradlew assembleContinuous` writes `app/build/outputs/apk/continuous/app-continuous.apk`, which you
+can copy to the phone and open. From 2027 Google adds a check for apps from unregistered developers on
+certified phones, and YouFlow is not registered. Copied APKs then need Android's one-time "advanced
+flow" (Developer options, a one-day wait, then "Install Anyway"). Installing over USB as above is not
+affected. Details: [docs/developer-verification.md](docs/developer-verification.md).
+
+### For developers
+
+```
+./gradlew testDebugUnitTest      # unit tests
+./gradlew :app:runKtlint         # style check (:app:formatKtlint fixes it)
+```
 
 The design and scope are written up in [docs/spec/youtube-client-spec.md](docs/spec/youtube-client-spec.md).
 Notes for publishing on F-Droid are in [docs/fdroid/README.md](docs/fdroid/README.md).
