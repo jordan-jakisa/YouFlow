@@ -40,5 +40,23 @@ class TasteProfile(private val weights: Map<String, Double>) {
             // A term seen once is noise, keep only what shows up repeatedly or in liked videos.
             return TasteProfile(weights.filterValues { it >= 1.5 })
         }
+
+        /**
+         * Lasting interest: [titles] with a weight and the day they were watched. A term counts once
+         * per day, at that day's strongest weight, so ten videos binged in one evening weigh less
+         * than the same topic coming back over many days (HackerTube ranks by distinct months).
+         */
+        fun fromDays(titles: List<Triple<String, Double, Long>>): TasteProfile {
+            val perDay = HashMap<Pair<String, Long>, Double>()
+            titles.forEach { (title, weight, day) ->
+                tokens(title).distinct().forEach { perDay.merge(it to day, weight) { a, b -> maxOf(a, b) } }
+            }
+            val weights = HashMap<String, Double>()
+            perDay.forEach { (key, weight) -> weights.merge(key.first, weight) { a, b -> a + b } }
+            return TasteProfile(weights.filterValues { it >= 1.5 })
+        }
+
+        /** Milliseconds since the epoch to a day number, for [fromDays]. */
+        fun day(epochMillis: Long): Long = epochMillis / 86_400_000L
     }
 }

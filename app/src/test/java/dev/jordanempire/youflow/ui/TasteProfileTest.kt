@@ -42,4 +42,12 @@ class TasteProfileTest {
     fun tokensDropNumbersAndShortWords() {
         assertEquals(listOf("minute", "challenge"), TasteProfile.tokens("A 10 minute challenge"))
     }
+
+    @Test
+    fun aTopicOverManyDaysOutweighsOneBinge() {
+        val binge = List(10) { Triple("Chess opening traps", 1.0, 1L) }
+        val lasting = (1L..4L).map { Triple("Sourdough bread baking", 1.0, it) }
+        val profile = TasteProfile.fromDays(binge + lasting)
+        assertTrue(profile.overlap("sourdough bread") > profile.overlap("chess opening"))
+    }
 }
