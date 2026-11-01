@@ -22,7 +22,9 @@ data class VideoItem(
     val isLive: Boolean,
     val isShort: Boolean,
     /** 0f..1f watched fraction, 0f when unwatched. */
-    val progress: Float = 0f
+    val progress: Float = 0f,
+    /** Why a recommended video is in the list ("Because you watched ..."), null elsewhere. */
+    val reason: String? = null
 ) : ContentItem
 
 @Immutable
