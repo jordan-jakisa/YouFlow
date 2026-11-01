@@ -64,7 +64,11 @@ class HomeViewModel(app: Application) : AndroidViewModel(app) {
         CommunityPacks.all.filter { it.id !in hidden }.map { KioskRef(it.id, "", it.title) } +
         repo.kiosks
 
-    private val _selectedId = MutableStateFlow(repo.kiosks.firstOrNull()?.id ?: FOR_YOU_ID)
+    // With nothing to base "For you" on yet, a new install opens on HN picks (lasting, curated
+    // videos) instead of YouTube's Live list of strangers' streams.
+    private val _selectedId = MutableStateFlow(
+        if (CommunityPacks.HN_ID !in settings.hiddenHomeTopics.value) CommunityPacks.HN_ID else repo.kiosks.firstOrNull()?.id ?: FOR_YOU_ID
+    )
     val selectedId = _selectedId.asStateFlow()
     private val _state = MutableStateFlow<UiState<List<VideoItem>>>(UiState.Loading)
     val state = _state.asStateFlow()
@@ -74,7 +78,7 @@ class HomeViewModel(app: Application) : AndroidViewModel(app) {
 
     init {
         viewModelScope.launch {
-            // Start on "For you" once there is something to base it on, otherwise on a YouTube list.
+            // Start on "For you" once there is something to base it on, otherwise on HN picks.
             val hasSignals = repo.subscriptions().first().isNotEmpty() ||
                 repo.continueWatching().first().isNotEmpty() || repo.likedVideos().first().isNotEmpty() ||
                 repo.hasImportedHistory()
