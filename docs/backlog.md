@@ -39,6 +39,24 @@ UI, and can build and install it on their phone by following the README.
 | Release keystore in `~/keys/youflow/` (made before the source-only decision) | open, Jordan | Unused. Keep or delete, Jordan's call. |
 | Move Jordan's data from "YouFlow Debug" to the optimised build (now labelled "YouFlow") on his phone (Export backup, Restore backup) | open, Jordan | After the screenshots; he wants to use the optimised build. |
 
+### Recommendations, the HackerTube way (started 2026-11-01)
+
+Idea from Karpathy's HackerTube (hackertube.org, 2026-11-01): rank by what a community keeps
+recommending over time, not by watch time. YouFlow earns nothing, so no demand validation; whether
+the feed is better is unmeasured until Jordan has used it for a week (see Checks).
+
+| Task | Status | Notes |
+|---|---|---|
+| Lasting-interest ranking in For you | done 2026-11-01 | Taste counts a topic once per day it was watched, channel affinity uses distinct days, not plays. `TasteProfile.fromDays`. |
+| "Why it's here" line on For you, HN picks and topic cards | done 2026-11-01 | "Because you watched ...", "New from a channel you follow", "Recommended on Hacker News in N different months", "Related to videos from X and Y". |
+| Frame thumbnails setting | done 2026-11-01 | Settings, Recommendations. YouTube's automatic middle frame (hq2.jpg), falls back to the uploader's thumbnail. Off by default. |
+| HN picks chip, and HN favourites mixed into For you when they match your taste | done 2026-11-01 | `assets/hn_picks.json`: 4,363 of HackerTube's 6,454 videos (news-only, music, comedy, never-recommended and duplicate uploads left out), 1.5 MB, plus "HN people also recommend". ODC-By 1.0, credited in Settings, About and the README. |
+| Community topic chips: Developers, AI builders, Startups, Indie hackers, Hackers | done 2026-11-01 | `CommunityPacks.kt`. A video makes the list when 2+ pack channels point to it (related videos of their uploads), plus their own uploads. Channel ids checked on YouTube 2026-11-01. Switch topics on or off in Settings, Topics on Home. |
+| Add "the Vestibule" and "Boomer ... in the woods" to a pack | open, Jordan | Jordan named them on 2026-11-01; no YouTube channel by those names found. Needs the channel link. |
+| Import YouTube watch history from Google Takeout | done 2026-11-01 | Settings, Import YouTube watch history: watch-history.json, .html or the whole zip. Kept in app storage (max 5,000), read only by the recommender, not added to History; Clear imported YouTube history removes it. |
+| Continue watching moved from Home to the You page | done 2026-11-01 | Jordan asked. |
+| Check on Jordan's phone: For you reasons, HN picks, each topic chip, Takeout import, frame thumbnails | open | Needs the test phone plugged in. |
+
 ### F-Droid
 
 | Task | Status | Notes |
@@ -57,6 +75,7 @@ UI, and can build and install it on their phone by following the README.
 | 2026-10-17 | Screenshots and the clip are made on Jordan's Pixel 8a over wireless adb. | Jordan ("You can use py androudid p[hjhone over wireless adb for screenshots and all") | Real device instead of the emulator. |
 
 | 2026-10-17 | Shorts never fall back to a `#shorts` search; with too few Shorts from subscriptions the screen asks the user to subscribe. | Jordan ("Replace the random Shorts fallback with a 'Subscribe to channels' prompt.") | On a clean profile the fallback showed strangers' videos, including a family video with children. |
+| 2026-11-01 | Adopt HackerTube's ideas: lasting-interest ranking, reason lines, frame thumbnails, bundled HN picks, community topic chips, Takeout history import; Continue watching moves to the You page. | Jordan ("Can we adopt this into the app", picked all four options, added the community lists and the Takeout import, "let's apply all of this learning") | Better recommendations without an account; everything stays on the device. |
 | 2026-10-17 | YouFlow stays a GitHub fork of NewPipe; it does not leave the fork network. | Jordan ("Keep YouFlow as a fork of NewPipe.") | Known effect: GitHub search hides forks by default, so discovery comes from the X post and the repo topics, not GitHub search. |
 
 ## Checks
@@ -64,4 +83,5 @@ UI, and can build and install it on their phone by following the README.
 | Date | What to look at |
 |---|---|
 | 2026-10-21 | Launch results on github.com/jordan-jakisa/YouFlow: stars, forks, and Insights > Traffic (views, unique visitors, referring sites), against the baseline of 0 stars, 0 forks, 20 views / 1 unique at posting. Also new issues and discussions, raised to Jordan before any reply. |
+| 2026-11-08 | After a week of Jordan using the build: does For you feel better? Which reason lines show most, which topic chips get opened, any chip that is empty or slow (over 10 s). Decide whether frame thumbnails become the default. |
 | 2027-01-15 | Google's developer verification FAQ and timeline: the exact 2027 date, changes to the advanced flow, whether F-Droid installs are covered. Update the README. |

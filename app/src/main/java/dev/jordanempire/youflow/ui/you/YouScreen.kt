@@ -42,6 +42,7 @@ import kotlinx.coroutines.flow.stateIn
 class YouViewModel(app: Application) : AndroidViewModel(app) {
     private val repo = YouTubeRepository(app)
     val history: StateFlow<List<VideoItem>> = repo.history().stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+    val continueWatching: StateFlow<List<VideoItem>> = repo.continueWatching().stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
     val playlists: StateFlow<List<PlaylistItem>> = repo.playlists().stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 }
 
@@ -49,8 +50,17 @@ class YouViewModel(app: Application) : AndroidViewModel(app) {
 fun YouScreen(actions: AppActions, contentPadding: PaddingValues, vm: YouViewModel = viewModel()) {
     val history by vm.history.collectAsState()
     val playlists by vm.playlists.collectAsState()
+    val continueWatching by vm.continueWatching.collectAsState()
 
     LazyColumn(contentPadding = contentPadding) {
+        if (continueWatching.isNotEmpty()) {
+            item(key = "continue-header") { SectionHeader("Continue watching") }
+            item(key = "continue") {
+                LazyRow(contentPadding = PaddingValues(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    items(continueWatching, key = { it.url }) { video -> VideoTile(video, onClick = { actions.openVideo(video) }) }
+                }
+            }
+        }
         item(key = "history-header") {
             Row(Modifier.fillMaxWidth().clickable(onClick = actions.openHistory), verticalAlignment = Alignment.CenterVertically) {
                 Box(Modifier.weight(1f)) { SectionHeader("History") }

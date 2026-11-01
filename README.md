@@ -17,13 +17,22 @@ YouFlow is source only: there is no APK to download. You build it on your comput
 your phone over USB, which takes about 20 minutes the first time. Steps are in
 [Build and install](#build-and-install).
 
+HN picks data comes from [HackerTube](https://hackertube.org) (ODC-By 1.0), built from the
+[open-index/hacker-news](https://huggingface.co/datasets/open-index/hacker-news) archive.
+
 YouFlow is not affiliated with YouTube, Google, NewPipe, TeamNewPipe or NewPipe e.V. and does not use
 their name or branding. Videos on the screenshots are from
 [Blender Studio](https://studio.blender.org) (CC BY).
 
 ## Features
 
-- Home with a local "For you" feed built on the device from your history, likes and subscriptions
+- Home with a local "For you" feed built on the device from your history, likes and subscriptions,
+  ranked by what you come back to over many days, with a line on each video saying why it is there
+- Import your YouTube watch history from Google Takeout to shape "For you" (stays on the phone)
+- HN picks: the videos Hacker News keeps recommending, from [HackerTube](https://hackertube.org)
+- Topic lists (Developers, AI builders, Startups, Indie hackers, Hackers) built from videos several
+  channels in that community point to
+- Optional frame thumbnails: a frame from the middle of the video instead of the clickbait thumbnail
 - Shorts feed with preloading, likes, saving and sharing
 - Search, channels, playlists, comments, chapters, captions
 - Subscriptions without an account, feed groups, import and export (NewPipe backups work)
