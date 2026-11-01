@@ -2,9 +2,11 @@ package dev.jordanempire.youflow.ui.home
 
 import android.app.Application
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.FilterChip
@@ -13,6 +15,7 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.AndroidViewModel
@@ -159,58 +162,61 @@ fun HomeScreen(actions: AppActions, contentPadding: PaddingValues, vm: HomeViewM
     val kiosks by vm.kiosks.collectAsState()
     val refreshing by vm.refreshing.collectAsState()
 
-    PullToRefreshBox(isRefreshing = refreshing, onRefresh = vm::refresh, modifier = Modifier.padding(top = contentPadding.calculateTopPadding())) {
-        StateHost(
-            state,
-            onRetry = vm::refresh,
-            isEmpty = { it.isEmpty() },
-            emptyContent = {
-                MessageBox(
-                    when (selectedId) {
-                        FEED_ID -> "Nothing new yet"
-                        FOR_YOU_ID -> "Nothing to recommend yet"
-                        else -> "No videos"
-                    },
-                    when (selectedId) {
-                        FEED_ID -> "Subscribe to channels, then pull down to fetch their latest uploads."
-                        FOR_YOU_ID -> "Watch, like or subscribe, or import your YouTube history in Settings."
-                        CommunityPacks.HN_ID -> null
-                        else -> if (CommunityPacks.all.any { it.id == selectedId }) "Nothing new from these channels right now." else null
-                    }
-                )
+    // The chips stay put while a topic loads; only the video list below them changes.
+    Column(Modifier.padding(top = contentPadding.calculateTopPadding())) {
+        LazyRow(
+            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            items(kiosks, key = { it.id }) { kiosk ->
+                FilterChip(selected = kiosk.id == selectedId, onClick = { vm.select(kiosk.id) }, label = { Text(kiosk.title) })
             }
-        ) { videos ->
-            LazyColumn(contentPadding = PaddingValues(bottom = contentPadding.calculateBottomPadding())) {
-                item(key = "chips") {
-                    LazyRow(
-                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        items(kiosks, key = { it.id }) { kiosk ->
-                            FilterChip(selected = kiosk.id == selectedId, onClick = { vm.select(kiosk.id) }, label = { Text(kiosk.title) })
-                        }
-                    }
-                }
-                items(videos, key = { it.url }) { video ->
-                    VideoCard(
-                        video,
-                        reason = video.reason,
-                        onClick = { actions.openVideo(video) },
-                        onChannelClick = { video.channelUrl?.let(actions.openChannel) },
-                        onSave = { actions.saveVideo(video) },
-                        onPlayNext = { actions.playNext(video) },
-                        onEnqueue = { actions.enqueue(video) },
-                        onHideChannel = video.channelUrl?.let { url ->
-                            {
-                                actions.hideChannel(url)
-                                vm.dismiss { it.channelUrl == url }
-                            }
+        }
+        // A new topic starts at the top of its list.
+        val listState = remember(selectedId) { LazyListState() }
+        PullToRefreshBox(isRefreshing = refreshing, onRefresh = vm::refresh, modifier = Modifier.weight(1f)) {
+            StateHost(
+                state,
+                onRetry = vm::refresh,
+                isEmpty = { it.isEmpty() },
+                emptyContent = {
+                    MessageBox(
+                        when (selectedId) {
+                            FEED_ID -> "Nothing new yet"
+                            FOR_YOU_ID -> "Nothing to recommend yet"
+                            else -> "No videos"
                         },
-                        onNotInterested = {
-                            actions.notInterested(video)
-                            vm.dismiss { it.url == video.url }
+                        when (selectedId) {
+                            FEED_ID -> "Subscribe to channels, then pull down to fetch their latest uploads."
+                            FOR_YOU_ID -> "Watch, like or subscribe, or import your YouTube history in Settings."
+                            CommunityPacks.HN_ID -> null
+                            else -> if (CommunityPacks.all.any { it.id == selectedId }) "Nothing new from these channels right now." else null
                         }
                     )
+                }
+            ) { videos ->
+                LazyColumn(state = listState, contentPadding = PaddingValues(bottom = contentPadding.calculateBottomPadding())) {
+                    items(videos, key = { it.url }) { video ->
+                        VideoCard(
+                            video,
+                            reason = video.reason,
+                            onClick = { actions.openVideo(video) },
+                            onChannelClick = { video.channelUrl?.let(actions.openChannel) },
+                            onSave = { actions.saveVideo(video) },
+                            onPlayNext = { actions.playNext(video) },
+                            onEnqueue = { actions.enqueue(video) },
+                            onHideChannel = video.channelUrl?.let { url ->
+                                {
+                                    actions.hideChannel(url)
+                                    vm.dismiss { it.channelUrl == url }
+                                }
+                            },
+                            onNotInterested = {
+                                actions.notInterested(video)
+                                vm.dismiss { it.url == video.url }
+                            }
+                        )
+                    }
                 }
             }
         }
