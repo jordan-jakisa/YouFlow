@@ -54,8 +54,11 @@ class YouFlowActivity : ComponentActivity() {
             // While a video plays the screen stays awake; paused, audio only or switched off, it sleeps as usual.
             val awake = keepScreenOn && playing.isPlaying && !audioOnly
             LaunchedEffect(awake) {
-                if (awake) window.addFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-                else window.clearFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+                if (awake) {
+                    window.addFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+                } else {
+                    window.clearFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+                }
             }
             val dark = when (themeMode) {
                 AppSettings.THEME_LIGHT -> false

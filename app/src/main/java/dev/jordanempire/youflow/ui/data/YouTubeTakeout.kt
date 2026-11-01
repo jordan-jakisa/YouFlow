@@ -32,8 +32,7 @@ object YouTubeTakeout {
 
     private fun file(context: Context) = File(context.filesDir, "youtube_watch_history.json")
 
-    fun load(context: Context): List<ImportedWatch> =
-        runCatching { json.decodeFromString(serializer, file(context).readText()) }.getOrDefault(emptyList())
+    fun load(context: Context): List<ImportedWatch> = runCatching { json.decodeFromString(serializer, file(context).readText()) }.getOrDefault(emptyList())
 
     fun save(context: Context, entries: List<ImportedWatch>) = file(context).writeText(json.encodeToString(serializer, entries))
 
@@ -61,8 +60,7 @@ object YouTubeTakeout {
         return emptyList()
     }
 
-    private fun fromText(text: String, name: String): List<ImportedWatch> =
-        if (name.endsWith(".json") || text.trimStart().startsWith("[")) fromJson(text) else fromHtml(text)
+    private fun fromText(text: String, name: String): List<ImportedWatch> = if (name.endsWith(".json") || text.trimStart().startsWith("[")) fromJson(text) else fromHtml(text)
 
     fun fromJson(text: String): List<ImportedWatch> = json.parseToJsonElement(text).jsonArray.mapNotNull { element ->
         val o = element as? JsonObject ?: return@mapNotNull null
@@ -95,8 +93,7 @@ object YouTubeTakeout {
 
     private fun cleanTitle(title: String) = title.removePrefix("Watched ").trim()
 
-    private fun normalizeUrl(url: String): String =
-        HnPicks.videoId(url.replace("\\u003d", "="))?.let { "https://www.youtube.com/watch?v=$it" } ?: url
+    private fun normalizeUrl(url: String): String = HnPicks.videoId(url.replace("\\u003d", "="))?.let { "https://www.youtube.com/watch?v=$it" } ?: url
 
     private fun unescape(s: String) = s.replace("&amp;", "&").replace("&quot;", "\"").replace("&#39;", "'")
         .replace("&lt;", "<").replace("&gt;", ">").replace("&nbsp;", " ").trim()

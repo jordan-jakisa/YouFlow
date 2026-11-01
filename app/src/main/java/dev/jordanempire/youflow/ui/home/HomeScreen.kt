@@ -59,11 +59,10 @@ class HomeViewModel(app: Application) : AndroidViewModel(app) {
     val kiosks: StateFlow<List<KioskRef>> = settings.hiddenHomeTopics.map { chips(it) }
         .stateIn(viewModelScope, SharingStarted.Eagerly, chips(settings.hiddenHomeTopics.value))
 
-    private fun chips(hidden: Set<String>): List<KioskRef> =
-        listOf(KioskRef(FOR_YOU_ID, "", "For you"), KioskRef(FEED_ID, "", "Following")) +
-            listOf(KioskRef(CommunityPacks.HN_ID, "", "HN picks")).filter { it.id !in hidden } +
-            CommunityPacks.all.filter { it.id !in hidden }.map { KioskRef(it.id, "", it.title) } +
-            repo.kiosks
+    private fun chips(hidden: Set<String>): List<KioskRef> = listOf(KioskRef(FOR_YOU_ID, "", "For you"), KioskRef(FEED_ID, "", "Following")) +
+        listOf(KioskRef(CommunityPacks.HN_ID, "", "HN picks")).filter { it.id !in hidden } +
+        CommunityPacks.all.filter { it.id !in hidden }.map { KioskRef(it.id, "", it.title) } +
+        repo.kiosks
 
     private val _selectedId = MutableStateFlow(repo.kiosks.firstOrNull()?.id ?: FOR_YOU_ID)
     val selectedId = _selectedId.asStateFlow()
@@ -133,12 +132,16 @@ class HomeViewModel(app: Application) : AndroidViewModel(app) {
                 val avoid = if (pullToRefresh) onScreen else emptySet()
                 val videos = when {
                     id == FOR_YOU_ID -> repo.recommendations(avoid)
+
                     id == FEED_ID -> {
                         if (pullToRefresh) runCatching { repo.refreshFeed() }
                         repo.feed()
                     }
+
                     id == CommunityPacks.HN_ID -> repo.hnPicks(avoid)
+
                     pack != null -> repo.packVideos(pack, avoid)
+
                     else -> repo.kioskVideosWithRetry(kiosk!!, forceLoad = pullToRefresh)
                 }
                 _state.value = UiState.Content(videos)

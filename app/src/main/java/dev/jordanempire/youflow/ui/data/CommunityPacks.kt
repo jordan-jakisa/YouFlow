@@ -16,7 +16,8 @@ object CommunityPacks {
 
     val all = listOf(
         CommunityPack(
-            "developers", "Developers",
+            "developers",
+            "Developers",
             listOf(
                 ch("The PrimeTime", "UCUyeluBRhGPCW4rPe_UvBZQ"),
                 ch("The Pragmatic Engineer", "UCPbwhExawYrn9xxI21TFfyw"),
@@ -30,7 +31,8 @@ object CommunityPacks {
             )
         ),
         CommunityPack(
-            "ai", "AI builders",
+            "ai",
+            "AI builders",
             listOf(
                 ch("Andrej Karpathy", "UCXUPKJO5MZQN11PqgIvyuvQ"),
                 ch("Yannic Kilcher", "UCZHmQk67mSJgfCCTn7xBfew"),
@@ -42,7 +44,8 @@ object CommunityPacks {
             )
         ),
         CommunityPack(
-            "startups", "Startups",
+            "startups",
+            "Startups",
             listOf(
                 ch("Y Combinator", "UCcefcZRL2oaA_uBNeo5UOWg"),
                 ch("Lenny's Podcast", "UC6t1O76G0jYXOAoYCm153dA"),
@@ -51,7 +54,8 @@ object CommunityPacks {
             )
         ),
         CommunityPack(
-            "indie", "Indie hackers",
+            "indie",
+            "Indie hackers",
             listOf(
                 ch("Starter Story", "UChhw6DlKKTQ9mYSpTfXUYqA"),
                 ch("Greg Isenberg", "UCPjNBjflYl0-HQtUvOx0Ibw"),
@@ -59,7 +63,8 @@ object CommunityPacks {
             )
         ),
         CommunityPack(
-            "hackers", "Hackers",
+            "hackers",
+            "Hackers",
             listOf(
                 ch("Ben Vallack", "UC4NNPgQ9sOkBjw6GlkgCylg"),
                 ch("Jeff Geerling", "UCR-DXc1voovS8nhAvccRZhg"),

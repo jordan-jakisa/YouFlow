@@ -223,15 +223,13 @@ class YouTubeRepository(private val context: Context) {
     }
 
     /** Channel affinity from lasting interest: distinct days watched, not plays. */
-    private fun Signals.affinity(channel: String?): Double =
-        1 + 0.25 * Math.log(1.0 + (channelDays[channel] ?: 0)) / Math.log(2.0) +
-            (if (channel in subscribed) 0.5 else 0.0) +
-            (if (channel in likedChannels) 0.5 else 0.0)
+    private fun Signals.affinity(channel: String?): Double = 1 + 0.25 * Math.log(1.0 + (channelDays[channel] ?: 0)) / Math.log(2.0) +
+        (if (channel in subscribed) 0.5 else 0.0) +
+        (if (channel in likedChannels) 0.5 else 0.0)
 
-    private fun Signals.keep(video: VideoItem): Boolean =
-        video.url !in dismissed && video.url !in watched && !video.isShort &&
-            (video.durationSeconds == 0L || video.durationSeconds > 60) &&
-            (video.channelUrl == null || video.channelUrl !in hidden)
+    private fun Signals.keep(video: VideoItem): Boolean = video.url !in dismissed && video.url !in watched && !video.isShort &&
+        (video.durationSeconds == 0L || video.durationSeconds > 60) &&
+        (video.channelUrl == null || video.channelUrl !in hidden)
 
     /** At most two per channel in the first 20, so one channel never fills the screen. */
     private fun varied(ranked: List<VideoItem>, limit: Int = 40): List<VideoItem> {

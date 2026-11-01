@@ -19,18 +19,18 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.runtime.compositionLocalOf
 import coil3.compose.AsyncImage
 import coil3.compose.SubcomposeAsyncImage
 import dev.jordanempire.youflow.ui.data.HnPicks
-import dev.jordanempire.youflow.ui.model.VideoItem
 import dev.jordanempire.youflow.ui.model.UiState
+import dev.jordanempire.youflow.ui.model.VideoItem
 
 @Composable
 fun LoadingBox(modifier: Modifier = Modifier) {
@@ -93,8 +93,7 @@ val LocalFrameThumbnails = compositionLocalOf { false }
  * video (hq2.jpg) replaces the uploader's picture; when there is none, the uploader's picture shows.
  */
 @Composable
-fun VideoThumbnail(video: VideoItem, modifier: Modifier = Modifier, contentDescription: String? = null) =
-    VideoThumbnail(video.url, video.thumbnail, modifier, contentDescription, video.isLive)
+fun VideoThumbnail(video: VideoItem, modifier: Modifier = Modifier, contentDescription: String? = null) = VideoThumbnail(video.url, video.thumbnail, modifier, contentDescription, video.isLive)
 
 /** [VideoThumbnail] for screens that have the video's link and thumbnail but no [VideoItem] (the player). */
 @Composable
