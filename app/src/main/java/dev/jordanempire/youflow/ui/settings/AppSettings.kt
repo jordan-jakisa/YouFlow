@@ -32,6 +32,16 @@ class AppSettings private constructor(app: Application) {
     private val _showShorts = MutableStateFlow(prefs.getBoolean(KEY_SHOW_SHORTS, true))
     val showShorts: StateFlow<Boolean> = _showShorts.asStateFlow()
 
+    private val _keepScreenOn = MutableStateFlow(prefs.getBoolean(KEY_KEEP_SCREEN_ON, true))
+
+    /** Keep the screen awake while a video plays. The power button still turns it off. */
+    val keepScreenOn: StateFlow<Boolean> = _keepScreenOn.asStateFlow()
+
+    fun setKeepScreenOn(value: Boolean) {
+        prefs.edit().putBoolean(KEY_KEEP_SCREEN_ON, value).apply()
+        _keepScreenOn.value = value
+    }
+
     private val _frameThumbnails = MutableStateFlow(prefs.getBoolean(KEY_FRAME_THUMBNAILS, false))
 
     /** Show a frame from the middle of each video instead of the uploader's thumbnail. */
@@ -92,6 +102,7 @@ class AppSettings private constructor(app: Application) {
         const val KEY_AUTOPLAY = "youflow_autoplay"
         const val KEY_NAV_ORDER = "youflow_nav_order"
         const val KEY_SHOW_SHORTS = "youflow_show_shorts"
+        const val KEY_KEEP_SCREEN_ON = "youflow_keep_screen_on"
         const val KEY_FRAME_THUMBNAILS = "youflow_frame_thumbnails"
         const val KEY_HIDDEN_HOME_TOPICS = "youflow_hidden_home_topics"
         val NAV_TABS = listOf("Home", "Shorts", "Subscriptions", "You")

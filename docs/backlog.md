@@ -58,6 +58,8 @@ the feed is better is unmeasured until Jordan has used it for a week (see Checks
 | Production build "YouFlow" updated on Jordan's Pixel 8a | done 2026-11-01 | `adb install -r`, data kept. Home on the phone: topic chips and reason lines show. |
 | Import YouTube watch history from Google Takeout | done 2026-11-01 | Settings, History and privacy, Import YouTube history: watch-history.json, .html or the whole zip. Kept in app storage (max 5,000), read only by the recommender, not added to History; Clear imported YouTube history removes it. |
 | Continue watching moved from Home to the You page | done 2026-11-01 | Jordan asked. |
+| Bug: tapping a Home chip reloaded the whole page, chips included | done 2026-11-01 | Jordan found it. The chips sit above the list now and only the list reloads; a new topic starts at the top. Checked on the Pixel 8a. |
+| Keep the screen on while a video plays | done 2026-11-01 | Jordan asked. Settings, Playback, "Keep screen on while playing", on by default. Off when paused or audio only; the power button still turns the screen off. Checked on the Pixel 8a: KEEP_SCREEN_ON set while playing, cleared on pause. |
 | Check on Jordan's phone: HN picks, each topic chip, Takeout import, frame thumbnails | open | For you and its reason lines checked on 2026-11-01; the rest needs a pass through the app. |
 
 ### F-Droid

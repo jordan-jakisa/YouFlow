@@ -47,6 +47,16 @@ class YouFlowActivity : ComponentActivity() {
             val themeMode by settings.theme.collectAsState()
             val dynamic by settings.dynamicColor.collectAsState()
             val frameThumbnails by settings.frameThumbnails.collectAsState()
+            val keepScreenOn by settings.keepScreenOn.collectAsState()
+            val engine = androidx.compose.runtime.remember { dev.jordanempire.youflow.media.engine.PlaybackEngine.get(application) }
+            val playing by engine.state.collectAsState()
+            val audioOnly by engine.audioOnly.collectAsState()
+            // While a video plays the screen stays awake; paused, audio only or switched off, it sleeps as usual.
+            val awake = keepScreenOn && playing.isPlaying && !audioOnly
+            LaunchedEffect(awake) {
+                if (awake) window.addFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+                else window.clearFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+            }
             val dark = when (themeMode) {
                 AppSettings.THEME_LIGHT -> false
                 AppSettings.THEME_DARK, AppSettings.THEME_BLACK -> true

@@ -69,6 +69,7 @@ fun SettingsScreen(onBack: () -> Unit, onOpenPage: (route: String) -> Unit) {
     val navOrder by settings.navOrder.collectAsState()
     val showShorts by settings.showShorts.collectAsState()
     val frameThumbnails by settings.frameThumbnails.collectAsState()
+    val keepScreenOn by settings.keepScreenOn.collectAsState()
     val hiddenTopics by settings.hiddenHomeTopics.collectAsState()
     var pickTopics by remember { mutableStateOf(false) }
     var importedCount by remember { mutableStateOf(0) }
@@ -143,6 +144,13 @@ fun SettingsScreen(onBack: () -> Unit, onOpenPage: (route: String) -> Unit) {
                     headlineContent = { Text("Autoplay next video") },
                     supportingContent = { Text("When a video ends, play the next one in the queue or a related video") },
                     trailingContent = { Switch(checked = autoplay, onCheckedChange = settings::setAutoplay) }
+                )
+            }
+            item {
+                ListItem(
+                    headlineContent = { Text("Keep screen on while playing") },
+                    supportingContent = { Text("The power button still turns it off") },
+                    trailingContent = { Switch(checked = keepScreenOn, onCheckedChange = settings::setKeepScreenOn) }
                 )
             }
             item {
