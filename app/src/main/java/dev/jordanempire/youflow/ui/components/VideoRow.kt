@@ -41,8 +41,8 @@ fun VideoRow(video: VideoItem, onClick: () -> Unit, modifier: Modifier = Modifie
             )
         }
         Box {
-            Thumbnail(
-                video.thumbnail,
+            VideoThumbnail(
+                video,
                 Modifier.width(150.dp).aspectRatio(16f / 9f).clip(RoundedCornerShape(12.dp))
                     .background(MaterialTheme.colorScheme.surfaceContainerHigh)
             )

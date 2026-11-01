@@ -25,7 +25,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.runtime.compositionLocalOf
 import coil3.compose.AsyncImage
+import coil3.compose.SubcomposeAsyncImage
+import dev.jordanempire.youflow.ui.data.HnPicks
+import dev.jordanempire.youflow.ui.model.VideoItem
 import dev.jordanempire.youflow.ui.model.UiState
 
 @Composable
@@ -79,6 +83,29 @@ fun <T> StateHost(
         is UiState.Error -> ErrorBox(state, onRetry)
         is UiState.Content -> if (isEmpty(state.data)) emptyContent() else content(state.data)
     }
+}
+
+/** Whether video thumbnails show a frame from the middle of the video (Settings, Frame thumbnails). */
+val LocalFrameThumbnails = compositionLocalOf { false }
+
+/**
+ * A video's thumbnail. With frame thumbnails on, YouTube's automatic frame from the middle of the
+ * video (hq2.jpg) replaces the uploader's picture; when there is none, the uploader's picture shows.
+ */
+@Composable
+fun VideoThumbnail(video: VideoItem, modifier: Modifier = Modifier, contentDescription: String? = null) {
+    val id = if (LocalFrameThumbnails.current && !video.isLive) HnPicks.videoId(video.url) else null
+    if (id == null) {
+        Thumbnail(video.thumbnail, modifier, contentDescription)
+        return
+    }
+    SubcomposeAsyncImage(
+        model = "https://i.ytimg.com/vi/$id/hq2.jpg",
+        contentDescription = contentDescription,
+        contentScale = ContentScale.Crop,
+        modifier = modifier,
+        error = { Thumbnail(video.thumbnail, Modifier.fillMaxSize(), contentDescription) }
+    )
 }
 
 @Composable

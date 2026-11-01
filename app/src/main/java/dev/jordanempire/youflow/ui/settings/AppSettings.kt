@@ -32,6 +32,26 @@ class AppSettings private constructor(app: Application) {
     private val _showShorts = MutableStateFlow(prefs.getBoolean(KEY_SHOW_SHORTS, true))
     val showShorts: StateFlow<Boolean> = _showShorts.asStateFlow()
 
+    private val _frameThumbnails = MutableStateFlow(prefs.getBoolean(KEY_FRAME_THUMBNAILS, false))
+
+    /** Show a frame from the middle of each video instead of the uploader's thumbnail. */
+    val frameThumbnails: StateFlow<Boolean> = _frameThumbnails.asStateFlow()
+    private val _hiddenHomeTopics = MutableStateFlow(prefs.getStringSet(KEY_HIDDEN_HOME_TOPICS, emptySet()).orEmpty().toSet())
+
+    /** Ids of the Home topics (HN picks, community packs) switched off. */
+    val hiddenHomeTopics: StateFlow<Set<String>> = _hiddenHomeTopics.asStateFlow()
+
+    fun setFrameThumbnails(value: Boolean) {
+        prefs.edit().putBoolean(KEY_FRAME_THUMBNAILS, value).apply()
+        _frameThumbnails.value = value
+    }
+
+    fun setHomeTopicShown(id: String, shown: Boolean) {
+        val updated = if (shown) _hiddenHomeTopics.value - id else _hiddenHomeTopics.value + id
+        prefs.edit().putStringSet(KEY_HIDDEN_HOME_TOPICS, updated).apply()
+        _hiddenHomeTopics.value = updated
+    }
+
     private fun readNavOrder(): List<String> {
         val saved = prefs.getString(KEY_NAV_ORDER, null)?.split(',').orEmpty().filter { it in NAV_TABS }.distinct()
         return saved + NAV_TABS.filter { it !in saved }
@@ -72,6 +92,8 @@ class AppSettings private constructor(app: Application) {
         const val KEY_AUTOPLAY = "youflow_autoplay"
         const val KEY_NAV_ORDER = "youflow_nav_order"
         const val KEY_SHOW_SHORTS = "youflow_show_shorts"
+        const val KEY_FRAME_THUMBNAILS = "youflow_frame_thumbnails"
+        const val KEY_HIDDEN_HOME_TOPICS = "youflow_hidden_home_topics"
         val NAV_TABS = listOf("Home", "Shorts", "Subscriptions", "You")
         private const val KEY_PALETTE_VERSION = "youflow_palette_version"
         const val THEME_SYSTEM = "system"

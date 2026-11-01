@@ -51,6 +51,8 @@ fun VideoCard(
     onClick: () -> Unit,
     onChannelClick: () -> Unit,
     modifier: Modifier = Modifier,
+    /** Why the video was recommended, shown under the meta line. */
+    reason: String? = null,
     /** When set, a three dot menu offers Save, Play next and Add to queue. */
     onSave: (() -> Unit)? = null,
     onPlayNext: (() -> Unit)? = null,
@@ -60,8 +62,8 @@ fun VideoCard(
 ) {
     Column(modifier.fillMaxWidth().clickable(onClick = onClick).padding(bottom = 16.dp)) {
         Box(Modifier.padding(horizontal = 12.dp)) {
-            Thumbnail(
-                video.thumbnail,
+            VideoThumbnail(
+                video,
                 Modifier.fillMaxWidth().aspectRatio(16f / 9f).clip(RoundedCornerShape(20.dp))
                     .background(MaterialTheme.colorScheme.surfaceContainerHigh),
                 contentDescription = video.title
@@ -88,6 +90,15 @@ fun VideoCard(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
+                if (!reason.isNullOrBlank()) {
+                    Text(
+                        reason,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
             }
             if (onSave != null) {
                 var menu by remember { mutableStateOf(false) }
@@ -150,8 +161,8 @@ private fun DurationBadge(video: VideoItem, modifier: Modifier) {
 fun VideoTile(video: VideoItem, onClick: () -> Unit, modifier: Modifier = Modifier) {
     Column(modifier.width(168.dp).clickable(onClick = onClick)) {
         Box {
-            Thumbnail(
-                video.thumbnail,
+            VideoThumbnail(
+                video,
                 Modifier.fillMaxWidth().aspectRatio(16f / 9f).clip(RoundedCornerShape(14.dp))
                     .background(MaterialTheme.colorScheme.surfaceContainerHigh)
             )

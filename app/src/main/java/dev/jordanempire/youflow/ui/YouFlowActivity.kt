@@ -46,6 +46,7 @@ class YouFlowActivity : ComponentActivity() {
             val settings = androidx.compose.runtime.remember { AppSettings.get(application) }
             val themeMode by settings.theme.collectAsState()
             val dynamic by settings.dynamicColor.collectAsState()
+            val frameThumbnails by settings.frameThumbnails.collectAsState()
             val dark = when (themeMode) {
                 AppSettings.THEME_LIGHT -> false
                 AppSettings.THEME_DARK, AppSettings.THEME_BLACK -> true
@@ -60,7 +61,9 @@ class YouFlowActivity : ComponentActivity() {
             }
             YouFlowTheme(darkTheme = dark, dynamicColor = dynamic, pureBlack = themeMode == AppSettings.THEME_BLACK) {
                 Surface {
-                    YouFlowApp(window2)
+                    androidx.compose.runtime.CompositionLocalProvider(
+                        dev.jordanempire.youflow.ui.components.LocalFrameThumbnails provides frameThumbnails
+                    ) { YouFlowApp(window2) }
                     // Fullscreen means landscape with the system bars hidden.
                     LaunchedEffect(Unit) {
                         snapshotFlow { window2.fullscreen }.collect { applyFullscreen(it) }
