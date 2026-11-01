@@ -40,4 +40,14 @@ class CommunityPacksTest {
     fun everyPackChannelIsAChannelLink() = CommunityPacks.all.flatMap { it.channels }.forEach { (_, url) ->
         assertTrue(url, Regex("https://www\\.youtube\\.com/channel/UC[A-Za-z0-9_-]{22}").matches(url))
     }
+
+    @Test
+    fun offTopicPopularVideosAreDropped() {
+        val topic = dev.jordanempire.youflow.ui.data.TasteProfile.from(
+            listOf("New open model beats GPT", "Open model reasoning benchmarks", "Why model evals lie").map { it to 1.0 }
+        )
+        assertTrue(CommunityPacks.onTopic("This open model changes everything", false, topic))
+        assertTrue(!CommunityPacks.onTopic("Trump Faces His Biggest Enemy Ahead of the Midterms", false, topic))
+        assertTrue(CommunityPacks.onTopic("Behind the scenes at our office", true, topic))
+    }
 }

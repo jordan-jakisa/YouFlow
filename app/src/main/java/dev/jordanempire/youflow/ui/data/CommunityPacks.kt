@@ -77,6 +77,13 @@ object CommunityPacks {
         )
     )
 
+    /**
+     * YouTube's related lists also carry whatever is popular (a talk show clip next to an AI
+     * paper review), so a video from outside the pack must share words with what the pack's own
+     * channels are posting about. [topic] is built from their recent titles.
+     */
+    fun onTopic(title: String, fromPackChannel: Boolean, topic: TasteProfile): Boolean = fromPackChannel || topic.overlap(title) > 0
+
     /** One upload of a pack channel and the related videos YouTube lists beside it. */
     class Pointer(val fromChannel: String, val relatedUrls: List<String>)
 

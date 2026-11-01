@@ -384,7 +384,7 @@ class YouTubeRepository(private val context: Context) {
      */
     suspend fun packVideos(pack: CommunityPack, avoid: Set<String> = emptySet()): List<VideoItem> = withContext(Dispatchers.IO) {
         val signals = signals()
-        val limiter = kotlinx.coroutines.sync.Semaphore(4)
+        val limiter = kotlinx.coroutines.sync.Semaphore(6)
         val uploads: Map<String, List<VideoItem>> = kotlinx.coroutines.coroutineScope {
             pack.channels.map { (name, url) ->
                 async {
@@ -428,6 +428,8 @@ class YouTubeRepository(private val context: Context) {
             }.awaitAll()
         }
         val packChannelIds = pack.channelUrls.mapNotNull { channelId(it) }.toSet()
+        // What the topic is about: words that recur in its channels' own recent titles.
+        val topic = TasteProfile.from(uploads.values.flatten().map { it.title to 1.0 })
         val ranked = CommunityPacks.rank(
             uploads.mapValues { (_, list) -> list.map { it.url } },
             pointers,
@@ -435,12 +437,15 @@ class YouTubeRepository(private val context: Context) {
             packChannels = packChannelIds
         ).mapNotNull { (url, score) ->
             val video = items[url]?.takeIf { signals.keep(it) } ?: return@mapNotNull null
+            val fromPack = video.channelUrl?.let { channelId(it) } in packChannelIds
+            if (!CommunityPacks.onTopic(video.title, fromPack, topic)) return@mapNotNull null
             val from = pointerFrom[url].orEmpty().filter { it.isNotBlank() }
             val why = when {
                 from.size >= 2 -> "Related to videos from ${from.take(2).joinToString(" and ")}" + (if (from.size > 2) " and ${from.size - 2} more" else "")
                 else -> "From the ${pack.title} channels"
             }
-            video.copy(reason = why) to score * (1 + 0.5 * signals.taste.overlap(video.title)) * (if (url in avoid) 0.05 else 1.0)
+            video.copy(reason = why) to score * (1 + topic.overlap(video.title)) * (1 + 0.5 * signals.taste.overlap(video.title)) *
+                (if (url in avoid) 0.05 else 1.0)
         }
             .sortedByDescending { it.second }
             .map { it.first }
