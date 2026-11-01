@@ -35,7 +35,6 @@ import androidx.compose.ui.unit.dp
 import androidx.media3.ui.compose.ContentFrame
 import androidx.media3.ui.compose.SURFACE_TYPE_TEXTURE_VIEW
 import dev.jordanempire.youflow.media.engine.PlaybackEngine
-import dev.jordanempire.youflow.ui.components.Thumbnail
 
 /** Docked above the navigation bar while a video plays but the watch page is collapsed. */
 @Composable
@@ -54,7 +53,8 @@ fun MiniPlayer(engine: PlaybackEngine, onExpand: () -> Unit, onClose: () -> Unit
                 val audioOnly by engine.audioOnly.collectAsState()
                 Box(Modifier.width(114.dp).height(64.dp).background(MaterialTheme.colorScheme.surfaceContainerHighest)) {
                     if (audioOnly) {
-                        Thumbnail(
+                        dev.jordanempire.youflow.ui.components.VideoThumbnail(
+                            entry.url,
                             state.info?.thumbnails?.let { dev.jordanempire.youflow.util.image.ImageStrategy.choosePreferredImage(it) } ?: entry.thumbnail,
                             Modifier.fillMaxSize()
                         )

@@ -80,7 +80,7 @@ fun SettingsScreen(onBack: () -> Unit, onOpenPage: (route: String) -> Unit) {
             scope.launch {
                 val count = runCatching { YouTubeRepository(app).importTakeout(uri, uri.lastPathSegment.orEmpty()) }.getOrDefault(0)
                 if (count > 0) importedCount = count
-                toast(context, if (count > 0) "Imported $count videos from YouTube" else "No YouTube watch history found in that file")
+                toast(context, if (count > 0) "Imported $count videos from YouTube history" else "No YouTube history found in that file")
             }
         }
     }
@@ -121,6 +121,22 @@ fun SettingsScreen(onBack: () -> Unit, onOpenPage: (route: String) -> Unit) {
                     modifier = Modifier.clickable { onOpenPage("n|") }
                 )
             }
+            item {
+                ListItem(
+                    headlineContent = { Text("Topics on Home") },
+                    supportingContent = {
+                        Text(homeTopics.filter { it.first !in hiddenTopics }.joinToString(" · ") { it.second }.ifEmpty { "None" })
+                    },
+                    modifier = Modifier.clickable { pickTopics = true }
+                )
+            }
+            item {
+                ListItem(
+                    headlineContent = { Text("Frame thumbnails") },
+                    supportingContent = { Text("A frame from the middle of each video instead of the uploader's thumbnail") },
+                    trailingContent = { Switch(checked = frameThumbnails, onCheckedChange = settings::setFrameThumbnails) }
+                )
+            }
             item { Header("Playback") }
             item {
                 ListItem(
@@ -139,52 +155,6 @@ fun SettingsScreen(onBack: () -> Unit, onOpenPage: (route: String) -> Unit) {
                         })
                     }
                 )
-            }
-            item { Header("Recommendations") }
-            item {
-                ListItem(
-                    headlineContent = { Text("Topics on Home") },
-                    supportingContent = {
-                        Text(homeTopics.filter { it.first !in hiddenTopics }.joinToString(" · ") { it.second }.ifEmpty { "None" })
-                    },
-                    modifier = Modifier.clickable { pickTopics = true }
-                )
-            }
-            item {
-                ListItem(
-                    headlineContent = { Text("Frame thumbnails") },
-                    supportingContent = { Text("A frame from the middle of each video instead of the uploader's thumbnail") },
-                    trailingContent = { Switch(checked = frameThumbnails, onCheckedChange = settings::setFrameThumbnails) }
-                )
-            }
-            item {
-                ListItem(
-                    headlineContent = { Text("Import YouTube watch history") },
-                    supportingContent = {
-                        Text(
-                            if (importedCount > 0) {
-                                "$importedCount videos imported. They shape For you and stay on this phone. Tap to replace."
-                            } else {
-                                "Pick watch-history.json, .html or the whole zip from Google Takeout. It shapes For you and stays on this phone."
-                            }
-                        )
-                    },
-                    modifier = Modifier.clickable { takeout.launch(arrayOf("*/*")) }
-                )
-            }
-            if (importedCount > 0) {
-                item {
-                    ListItem(
-                        headlineContent = { Text("Clear imported YouTube history") },
-                        modifier = Modifier.clickable {
-                            confirm = "Clear imported YouTube history?" to {
-                                scope.launch(Dispatchers.IO) { YouTubeRepository(app).clearImportedHistory() }
-                                importedCount = 0
-                                toast(context, "Imported YouTube history cleared")
-                            }
-                        }
-                    )
-                }
             }
             item { Header("History and privacy") }
             item {
@@ -226,6 +196,35 @@ fun SettingsScreen(onBack: () -> Unit, onOpenPage: (route: String) -> Unit) {
                     }
                 )
             }
+            item {
+                ListItem(
+                    headlineContent = { Text("Import YouTube history") },
+                    supportingContent = {
+                        Text(
+                            if (importedCount > 0) {
+                                "$importedCount videos imported, used only for For you"
+                            } else {
+                                "From a Google Takeout file, used only for For you"
+                            }
+                        )
+                    },
+                    modifier = Modifier.clickable { takeout.launch(arrayOf("*/*")) }
+                )
+            }
+            if (importedCount > 0) {
+                item {
+                    ListItem(
+                        headlineContent = { Text("Clear imported YouTube history") },
+                        modifier = Modifier.clickable {
+                            confirm = "Clear imported YouTube history?" to {
+                                scope.launch(Dispatchers.IO) { runCatching { YouTubeRepository(app).clearImportedHistory() } }
+                                importedCount = 0
+                                toast(context, "Imported YouTube history cleared")
+                            }
+                        }
+                    )
+                }
+            }
             item { Header("Backup") }
             item { BackupRows() }
             item { Header("More") }
@@ -254,7 +253,7 @@ fun SettingsScreen(onBack: () -> Unit, onOpenPage: (route: String) -> Unit) {
                 ListItem(
                     headlineContent = { Text("About") },
                     supportingContent = {
-                        Text("YouFlow 0.1.0 · GPL-3.0 · based on NewPipe and NewPipeExtractor. HN picks: data from HackerTube (hackertube.org), ODC-By 1.0.")
+                        Text("YouFlow 0.1.0 · GPL-3.0 · based on NewPipe and NewPipeExtractor · HN picks from HackerTube, ODC-By")
                     }
                 )
             }

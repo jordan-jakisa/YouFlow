@@ -235,7 +235,8 @@ private fun PlayerBox(
         val audioOnly by engine.audioOnly.collectAsState()
         if (audioOnly) {
             Box(Modifier.fillMaxSize().background(Color.Black)) {
-                Thumbnail(
+                dev.jordanempire.youflow.ui.components.VideoThumbnail(
+                    state.entry?.url,
                     state.info?.thumbnails?.let { ImageStrategy.choosePreferredImage(it) } ?: state.entry?.thumbnail,
                     Modifier.fillMaxSize()
                 )

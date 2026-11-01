@@ -93,10 +93,15 @@ val LocalFrameThumbnails = compositionLocalOf { false }
  * video (hq2.jpg) replaces the uploader's picture; when there is none, the uploader's picture shows.
  */
 @Composable
-fun VideoThumbnail(video: VideoItem, modifier: Modifier = Modifier, contentDescription: String? = null) {
-    val id = if (LocalFrameThumbnails.current && !video.isLive) HnPicks.videoId(video.url) else null
+fun VideoThumbnail(video: VideoItem, modifier: Modifier = Modifier, contentDescription: String? = null) =
+    VideoThumbnail(video.url, video.thumbnail, modifier, contentDescription, video.isLive)
+
+/** [VideoThumbnail] for screens that have the video's link and thumbnail but no [VideoItem] (the player). */
+@Composable
+fun VideoThumbnail(videoUrl: String?, thumbnail: String?, modifier: Modifier = Modifier, contentDescription: String? = null, isLive: Boolean = false) {
+    val id = if (LocalFrameThumbnails.current && !isLive) videoUrl?.let { HnPicks.videoId(it) } else null
     if (id == null) {
-        Thumbnail(video.thumbnail, modifier, contentDescription)
+        Thumbnail(thumbnail, modifier, contentDescription)
         return
     }
     SubcomposeAsyncImage(
@@ -104,7 +109,7 @@ fun VideoThumbnail(video: VideoItem, modifier: Modifier = Modifier, contentDescr
         contentDescription = contentDescription,
         contentScale = ContentScale.Crop,
         modifier = modifier,
-        error = { Thumbnail(video.thumbnail, Modifier.fillMaxSize(), contentDescription) }
+        error = { Thumbnail(thumbnail, Modifier.fillMaxSize(), contentDescription) }
     )
 }
 

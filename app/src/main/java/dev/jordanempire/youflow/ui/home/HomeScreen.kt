@@ -173,9 +173,9 @@ fun HomeScreen(actions: AppActions, contentPadding: PaddingValues, vm: HomeViewM
                     },
                     when (selectedId) {
                         FEED_ID -> "Subscribe to channels, then pull down to fetch their latest uploads."
-                        FOR_YOU_ID -> "Watch and like a few videos, subscribe to channels or import your YouTube history in Settings, then recommendations show up here."
+                        FOR_YOU_ID -> "Watch, like or subscribe, or import your YouTube history in Settings."
                         CommunityPacks.HN_ID -> null
-                        else -> if (CommunityPacks.all.any { it.id == selectedId }) "Couldn't reach these channels. Pull down to try again." else null
+                        else -> if (CommunityPacks.all.any { it.id == selectedId }) "Nothing new from these channels right now." else null
                     }
                 )
             }
