@@ -25,7 +25,8 @@ object CommunityPacks {
                 ch("Computerphile", "UC9-y-6csu5WGm29I7JiwpnA"),
                 ch("CodeAesthetic", "UCaSCt8s_4nfkRglWCvNSDrg"),
                 ch("Low Level", "UC6biysICWOJ-C3P4Tyeggzg"),
-                ch("Dreams of Code", "UCWQaM7SpSECp9FELz-cHzuQ")
+                ch("Dreams of Code", "UCWQaM7SpSECp9FELz-cHzuQ"),
+                ch("Boomer Ranting in the Woods", "UCMkMs3Val6p1J6ZJe-TJ65Q")
             )
         ),
         CommunityPack(

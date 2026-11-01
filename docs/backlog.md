@@ -49,13 +49,16 @@ the feed is better is unmeasured until Jordan has used it for a week (see Checks
 |---|---|---|
 | Lasting-interest ranking in For you | done 2026-11-01 | Taste counts a topic once per day it was watched, channel affinity uses distinct days, not plays. `TasteProfile.fromDays`. |
 | "Why it's here" line on For you, HN picks and topic cards | done 2026-11-01 | "Because you watched ...", "New from a channel you follow", "Recommended on Hacker News in N different months", "Related to videos from X and Y". |
-| Frame thumbnails setting | done 2026-11-01 | Settings, Recommendations. YouTube's automatic middle frame (hq2.jpg), falls back to the uploader's thumbnail. Off by default. |
+| Frame thumbnails setting | done 2026-11-01 | Settings, Appearance. YouTube's automatic middle frame (hq2.jpg), falls back to the uploader's thumbnail. Off by default. |
 | HN picks chip, and HN favourites mixed into For you when they match your taste | done 2026-11-01 | `assets/hn_picks.json`: 4,363 of HackerTube's 6,454 videos (news-only, music, comedy, never-recommended and duplicate uploads left out), 1.5 MB, plus "HN people also recommend". ODC-By 1.0, credited in Settings, About and the README. |
 | Community topic chips: Developers, AI builders, Startups, Indie hackers, Hackers | done 2026-11-01 | `CommunityPacks.kt`. A video makes the list when 2+ pack channels point to it (related videos of their uploads), plus their own uploads. Channel ids checked on YouTube 2026-11-01. Switch topics on or off in Settings, Topics on Home. |
-| Add "the Vestibule" and "Boomer ... in the woods" to a pack | open, Jordan | Jordan named them on 2026-11-01; no YouTube channel by those names found. Needs the channel link. |
-| Import YouTube watch history from Google Takeout | done 2026-11-01 | Settings, Import YouTube watch history: watch-history.json, .html or the whole zip. Kept in app storage (max 5,000), read only by the recommender, not added to History; Clear imported YouTube history removes it. |
+| Add "Boomer Ranting in the Woods" to a pack | done 2026-11-01 | Developers. Found from Jordan's own For you on the phone. |
+| Add "the Vestibule" to a pack | open, Jordan | Jordan named it on 2026-11-01; no YouTube channel by that name found. Needs the channel link. |
+| Settings placement after the UI check | done 2026-11-01 | Topics on Home and Frame thumbnails in Appearance; Import and Clear imported YouTube history in History and privacy; shorter texts; frame thumbnails also in the player and mini player when audio only. |
+| Production build "YouFlow" updated on Jordan's Pixel 8a | done 2026-11-01 | `adb install -r`, data kept. Home on the phone: topic chips and reason lines show. |
+| Import YouTube watch history from Google Takeout | done 2026-11-01 | Settings, History and privacy, Import YouTube history: watch-history.json, .html or the whole zip. Kept in app storage (max 5,000), read only by the recommender, not added to History; Clear imported YouTube history removes it. |
 | Continue watching moved from Home to the You page | done 2026-11-01 | Jordan asked. |
-| Check on Jordan's phone: For you reasons, HN picks, each topic chip, Takeout import, frame thumbnails | open | Needs the test phone plugged in. |
+| Check on Jordan's phone: HN picks, each topic chip, Takeout import, frame thumbnails | open | For you and its reason lines checked on 2026-11-01; the rest needs a pass through the app. |
 
 ### F-Droid
 
