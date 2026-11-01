@@ -30,7 +30,7 @@ UI, and can build and install it on their phone by following the README.
 | Bug: Subscriptions feed kept an unsubscribed channel's videos until pull to refresh | done 2026-10-17 | Feed reloads when the subscription list changes. Unit tests pass; not yet checked on the phone (adb dropped). |
 | Shorts: replace the random `#shorts` search fallback with a "Subscribe to channels" prompt | done 2026-10-17 | Shorts come only from subscribed channels. None: empty state "No Shorts yet" with one "Find channels" button that opens search. Some: those Shorts, then a closing page "You're all caught up" with the same button. New subscriptions show up without a restart. Old cache key retired so padded lists never show again. 8 unit tests in `ShortsPagesTest`. Empty state and Find channels checked on the emulator; on Jordan's phone the feed shows only that app's subscriptions. |
 | The build the README installs was named "YouFlow Continuous" | done 2026-10-17 | Now "YouFlow" (app id unchanged, `...continuous.youtubeonly`, so existing installs update in place). Checked from a fresh clone of the default branch: `./gradlew installContinuous` onto the emulator, label "YouFlow". Debug builds stay "YouFlow Debug"; the README never makes one. |
-| On a fresh install Home opens on the "Live" chip (random livestreams) until there is history, likes or a subscription | open, Jordan | Intended in `HomeViewModel`: first YouTube list, and Live comes first because YouTube dropped Trending. Product choice: keep Live, start on Trending music, or start on For you with an empty-state prompt. |
+| On a fresh install Home opened on the "Live" chip (random livestreams) until there is history, likes or a subscription | done 2026-11-02 | Jordan: "fix everything". A fresh install opens on HN picks (curated, no strangers' livestreams); For you once there is history, a like, a subscription or imported history. If HN picks is switched off, the first YouTube list. |
 | Developer verification note and user install guidance | done 2026-10-17 | [developer-verification.md](developer-verification.md). |
 | Launch post on X (@heylengu) | done 2026-10-18 | https://x.com/heylengu/status/2111574501888581863, sent 2026-10-18 00:46 EAT after Jordan approved it. 18 s demo in an Easlo-style frame, from the Pixel 8a recording. Baseline at posting: 0 stars, 0 forks, GitHub traffic 20 views / 1 unique visitor. Issues or questions from launch traffic go to Jordan before anyone replies. |
 | Signed release APK, GitHub Release, release workflow, repo signing secrets | not planned 2026-10-17 | Jordan: source only, see Decisions. |
@@ -60,7 +60,11 @@ the feed is better is unmeasured until Jordan has used it for a week (see Checks
 | Continue watching moved from Home to the You page | done 2026-11-01 | Jordan asked. |
 | Bug: tapping a Home chip reloaded the whole page, chips included | done 2026-11-01 | Jordan found it. The chips sit above the list now and only the list reloads; a new topic starts at the top. Checked on the Pixel 8a. |
 | Keep the screen on while a video plays | done 2026-11-01 | Jordan asked. Settings, Playback, "Keep screen on while playing", on by default. Off when paused or audio only; the power button still turns the screen off. Checked on the Pixel 8a: KEEP_SCREEN_ON set while playing, cleared on pause. |
-| Check on Jordan's phone: HN picks, each topic chip, Takeout import, frame thumbnails | open | For you and its reason lines checked on 2026-11-01; the rest needs a pass through the app. |
+| Bug: topic lists showed popular off-topic videos (a Daily Show clip and Ugandan politics on top of AI builders) | done 2026-11-02 | Found on the phone. YouTube's related lists carry whatever is popular in the region. A video from outside the topic's channels now has to share words with what those channels post about (`CommunityPacks.onTopic`, tested). Fresh AI builders list not yet seen on the phone. |
+| Check on Jordan's phone: HN picks, each topic chip, Takeout import, frame thumbnails | in progress | 2026-11-02: HN picks, Developers, Startups and Indie hackers show on-topic lists with reasons. Not yet seen: AI builders after the fix, Hackers, frame thumbnails, a Takeout import. Stopped because Readback came to the front on the phone. |
+| Launch results on GitHub (check due 2026-10-21) | done 2026-11-02 | 0 stars, 0 forks, 0 watchers. Views 25 / 12 unique over 14 days (17 / 5 on launch day, then 0 to 2 a day). Referrers: github.com 8, duck.ai 1; none from X. Clones 65 / 31 unique, mostly CI and bots. Issues and Discussions are switched off, so a stranger has no way to report a problem. Bad news, for Jordan to assess. |
+| Turn on Issues (or Discussions) on the repo so people can report problems | open, Jordan | Repo setting change, needs Jordan's yes. |
+| CI pinned to `ubuntu-24.04` | done 2026-11-02 | GitHub is moving `ubuntu-latest` to Ubuntu 26; pinned so CI does not change under us. |
 
 ### F-Droid
 
@@ -87,6 +91,6 @@ the feed is better is unmeasured until Jordan has used it for a week (see Checks
 
 | Date | What to look at |
 |---|---|
-| 2026-10-21 | Launch results on github.com/jordan-jakisa/YouFlow: stars, forks, and Insights > Traffic (views, unique visitors, referring sites), against the baseline of 0 stars, 0 forks, 20 views / 1 unique at posting. Also new issues and discussions, raised to Jordan before any reply. |
 | 2026-11-08 | After a week of Jordan using the build: does For you feel better? Which reason lines show most, which topic chips get opened, any chip that is empty or slow (over 10 s). Decide whether frame thumbnails become the default. |
 | 2027-01-15 | Google's developer verification FAQ and timeline: the exact 2027 date, changes to the advanced flow, whether F-Droid installs are covered. Update the README. |
+| 2027-04-01 | Ubuntu 26.04 runner on GitHub Actions: generally available? Move CI from `ubuntu-24.04` to it and check the build passes. |
