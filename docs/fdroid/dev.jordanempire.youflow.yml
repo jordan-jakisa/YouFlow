@@ -1,6 +1,7 @@
 # Draft recipe for https://gitlab.com/fdroid/fdroiddata (metadata/dev.jordanempire.youflow.yml).
-# Not submitted. `commit` is the v0.1.0 tag; if the tag is moved, update it. See README.md here.
-# Passes `fdroid lint` and `fdroid rewritemeta` against a current fdroiddata checkout.
+# Not submitted. `commit` is the v0.2.0 tag; if the tag is moved, update it. See README.md here.
+# The build needs JDK 17 (NewPipeExtractor's toolchain) and JDK 21 (the app). The build server runs
+# Debian trixie, which has only 21, so 17 comes from bookworm the way NewPipe's recipe does it.
 AntiFeatures:
   NonFreeNet:
     en-US: Depends on YouTube, a proprietary network service.
@@ -12,21 +13,25 @@ License: GPL-3.0-or-later
 AuthorName: Jordan Mungujakisa
 WebSite: https://github.com/jordan-jakisa/YouFlow
 SourceCode: https://github.com/jordan-jakisa/YouFlow
-IssueTracker: https://github.com/jordan-jakisa/YouFlow/issues
 
 RepoType: git
 Repo: https://github.com/jordan-jakisa/YouFlow
 
 Builds:
-  - versionName: 0.1.0
-    versionCode: 1
-    commit: 935df79f0fbe974b7c4afe9b094cd7281ba60c7b
+  - versionName: 0.2.0
+    versionCode: 2
+    commit: ebb443a28f939af22aa5236a08929f48efc335ae
     subdir: app
     submodules: true
+    sudo:
+      - echo "deb https://deb.debian.org/debian bookworm main" > /etc/apt/sources.list.d/bookworm.list
+      - apt-get update
+      - apt-get install -y -t bookworm openjdk-17-jdk-headless
     gradle:
       - yes
 
 AutoUpdateMode: Version
-UpdateCheckMode: Tags .*[0-9]$
-CurrentVersion: 0.1.0
-CurrentVersionCode: 1
+UpdateCheckMode: Tags ^v[0-9.]+$
+UpdateCheckData: buildSrc/src/main/kotlin/ProjectConfig.kt|NEWPIPE_VERSION_CODE\s=\s(\d+)|.|NEWPIPE_VERSION_NAME\s=\s\"(.*)"
+CurrentVersion: 0.2.0
+CurrentVersionCode: 2

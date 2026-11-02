@@ -37,7 +37,7 @@ UI, and can build and install it on their phone by following the README.
 | Bug: Shorts kept showing an unsubscribed channel's Shorts (saved list and the list on screen) | done 2026-10-18 | Found on the phone after unsubscribing Marc Lou and Marques Brownlee in the test app. Saved and shown Shorts are now filtered to current subscriptions. 3 more tests in `ShortsPagesTest`. |
 | Leave GitHub's fork network | not planned 2026-10-17 | Jordan: stays a fork, see Decisions. |
 | Release keystore in `~/keys/youflow/` (made before the source-only decision) | kept 2026-11-02 | Jordan: "Keep it." Unused; do not delete. |
-| Move Jordan's data from "YouFlow Debug" to the optimised build (now labelled "YouFlow") on his phone (Export backup, Restore backup) | in progress 2026-11-02 | Jordan: "Yes please", knowing a restore replaces what YouFlow saved since 18 Oct. |
+| Move Jordan's data from "YouFlow Debug" to the optimised build (now labelled "YouFlow") on his phone (Export backup, Restore backup) | blocked 2026-11-02 | Jordan: "Yes please". But YouFlow Debug is no longer installed on the Pixel 8a, so its data is gone. The only backup on the phone is `Download/NewPipeData-20261004_100434.zip` (4 Oct, older than YouFlow's own data). Nothing restored; back to Jordan. |
 
 ### Recommendations, the HackerTube way (started 2026-11-01)
 
@@ -72,8 +72,9 @@ the feed is better is unmeasured until Jordan has used it for a week (see Checks
 |---|---|---|
 | Recipe, metadata and policy check | done 2026-10-04 | [fdroid/README.md](fdroid/README.md) |
 | Decide whether F-Droid still fits "source only" | done 2026-11-02 | Jordan: "Yes, it should. go on f-droid." See Decisions. |
-| Bring the F-Droid recipe and metadata up to date with the November work | in progress 2026-11-02 | Prepared on 2026-10-04 against v0.1.0; since then HN picks, topic chips, Takeout import and new settings. |
-| Open the fdroiddata merge request | open | Needs Jordan: a GitLab account in his name, and his yes on the merge request text before it is sent. |
+| Bring the F-Droid recipe and metadata up to date with the November work | done 2026-11-02 | Version 0.2.0 (code 2), tag `v0.2.0` (local until pushed), changelog 2, description with topic lists, Takeout import and the HackerTube credit. Recipe installs JDK 17 from bookworm (build server is trixie), reads the version like NewPipe's, drops IssueTracker. Passes `fdroid lint` and `rewritemeta`. [fdroid/README.md](fdroid/README.md) |
+| Retake the phone screenshots: Home now has topic chips and reason lines | open | Needs the phone and a clean profile. Before the merge request. |
+| Open the fdroiddata merge request | open, from 2027-01-03 | F-Droid's policy: an app "should have been actively developed for at least 3 months"; YouFlow started 2026-10-03 and no exception applies. Needs Jordan's GitLab account and his yes on the text. |
 
 ## Decisions
 
@@ -95,5 +96,6 @@ the feed is better is unmeasured until Jordan has used it for a week (see Checks
 | Date | What to look at |
 |---|---|
 | 2026-11-08 | After a week of Jordan using the build: does For you feel better? Which reason lines show most, which topic chips get opened, any chip that is empty or slow (over 10 s). Decide whether frame thumbnails become the default. |
+| 2027-01-04 | F-Droid: 3 months of development reached. Check the Inclusion Policy again, refresh the recipe to the latest tag, then ask Jordan to open the fdroiddata merge request. |
 | 2027-01-15 | Google's developer verification FAQ and timeline: the exact 2027 date, changes to the advanced flow, whether F-Droid installs are covered. Update the README. |
 | 2027-04-01 | Ubuntu 26.04 runner on GitHub Actions: generally available? Move CI from `ubuntu-24.04` to it and check the build passes. |
