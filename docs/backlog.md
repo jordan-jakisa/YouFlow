@@ -36,8 +36,8 @@ UI, and can build and install it on their phone by following the README.
 | Signed release APK, GitHub Release, release workflow, repo signing secrets | not planned 2026-10-17 | Jordan: source only, see Decisions. |
 | Bug: Shorts kept showing an unsubscribed channel's Shorts (saved list and the list on screen) | done 2026-10-18 | Found on the phone after unsubscribing Marc Lou and Marques Brownlee in the test app. Saved and shown Shorts are now filtered to current subscriptions. 3 more tests in `ShortsPagesTest`. |
 | Leave GitHub's fork network | not planned 2026-10-17 | Jordan: stays a fork, see Decisions. |
-| Release keystore in `~/keys/youflow/` (made before the source-only decision) | open, Jordan | Unused. Keep or delete, Jordan's call. |
-| Move Jordan's data from "YouFlow Debug" to the optimised build (now labelled "YouFlow") on his phone (Export backup, Restore backup) | open, Jordan | After the screenshots; he wants to use the optimised build. |
+| Release keystore in `~/keys/youflow/` (made before the source-only decision) | kept 2026-11-02 | Jordan: "Keep it." Unused; do not delete. |
+| Move Jordan's data from "YouFlow Debug" to the optimised build (now labelled "YouFlow") on his phone (Export backup, Restore backup) | in progress 2026-11-02 | Jordan: "Yes please", knowing a restore replaces what YouFlow saved since 18 Oct. |
 
 ### Recommendations, the HackerTube way (started 2026-11-01)
 
@@ -53,7 +53,7 @@ the feed is better is unmeasured until Jordan has used it for a week (see Checks
 | HN picks chip, and HN favourites mixed into For you when they match your taste | done 2026-11-01 | `assets/hn_picks.json`: 4,363 of HackerTube's 6,454 videos (news-only, music, comedy, never-recommended and duplicate uploads left out), 1.5 MB, plus "HN people also recommend". ODC-By 1.0, credited in Settings, About and the README. |
 | Community topic chips: Developers, AI builders, Startups, Indie hackers, Hackers | done 2026-11-01 | `CommunityPacks.kt`. A video makes the list when 2+ pack channels point to it (related videos of their uploads), plus their own uploads. Channel ids checked on YouTube 2026-11-01. Switch topics on or off in Settings, Topics on Home. |
 | Add "Boomer Ranting in the Woods" to a pack | done 2026-11-01 | Developers. Found from Jordan's own For you on the phone. |
-| Add "the Vestibule" to a pack | open, Jordan | Jordan named it on 2026-11-01; no YouTube channel by that name found. Needs the channel link. |
+| Add "the Vestibule" to a pack | not planned 2026-11-02 | Jordan: "Leave it." No YouTube channel by that name was found. |
 | Settings placement after the UI check | done 2026-11-01 | Topics on Home and Frame thumbnails in Appearance; Import and Clear imported YouTube history in History and privacy; shorter texts; frame thumbnails also in the player and mini player when audio only. |
 | Production build "YouFlow" updated on Jordan's Pixel 8a | done 2026-11-01 | `adb install -r`, data kept. Home on the phone: topic chips and reason lines show. |
 | Import YouTube watch history from Google Takeout | done 2026-11-01 | Settings, History and privacy, Import YouTube history: watch-history.json, .html or the whole zip. Kept in app storage (max 5,000), read only by the recommender, not added to History; Clear imported YouTube history removes it. |
@@ -63,7 +63,7 @@ the feed is better is unmeasured until Jordan has used it for a week (see Checks
 | Bug: topic lists showed popular off-topic videos (a Daily Show clip and Ugandan politics on top of AI builders) | done 2026-11-02 | Found on the phone. YouTube's related lists carry whatever is popular in the region. A video from outside the topic's channels now has to share words with what those channels post about (`CommunityPacks.onTopic`, tested). Fresh AI builders list not yet seen on the phone. |
 | Check on Jordan's phone: HN picks, each topic chip, Takeout import, frame thumbnails | in progress | 2026-11-02: HN picks, Developers, Startups and Indie hackers show on-topic lists with reasons. Not yet seen: AI builders after the fix, Hackers, frame thumbnails, a Takeout import. Stopped because Readback came to the front on the phone. |
 | Launch results on GitHub (check due 2026-10-21) | done 2026-11-02 | 0 stars, 0 forks, 0 watchers. Views 25 / 12 unique over 14 days (17 / 5 on launch day, then 0 to 2 a day). Referrers: github.com 8, duck.ai 1; none from X. Clones 65 / 31 unique, mostly CI and bots. Issues and Discussions are switched off, so a stranger has no way to report a problem. Bad news, for Jordan to assess. |
-| Turn on Issues (or Discussions) on the repo so people can report problems | open, Jordan | Repo setting change, needs Jordan's yes. |
+| Turn on Issues (or Discussions) on the repo so people can report problems | not planned 2026-11-02 | Jordan: "No." Issues and Discussions stay off. |
 | CI pinned to `ubuntu-24.04` | done 2026-11-02 | GitHub is moving `ubuntu-latest` to Ubuntu 26; pinned so CI does not change under us. |
 
 ### F-Droid
@@ -71,8 +71,9 @@ the feed is better is unmeasured until Jordan has used it for a week (see Checks
 | Task | Status | Notes |
 |---|---|---|
 | Recipe, metadata and policy check | done 2026-10-04 | [fdroid/README.md](fdroid/README.md) |
-| Decide whether F-Droid still fits "source only" | open, Jordan | F-Droid builds from source and signs itself; no APK from us. |
-| Open the fdroiddata merge request | open | After that decision. |
+| Decide whether F-Droid still fits "source only" | done 2026-11-02 | Jordan: "Yes, it should. go on f-droid." See Decisions. |
+| Bring the F-Droid recipe and metadata up to date with the November work | in progress 2026-11-02 | Prepared on 2026-10-04 against v0.1.0; since then HN picks, topic chips, Takeout import and new settings. |
+| Open the fdroiddata merge request | open | Needs Jordan: a GitLab account in his name, and his yes on the merge request text before it is sent. |
 
 ## Decisions
 
@@ -85,6 +86,8 @@ the feed is better is unmeasured until Jordan has used it for a week (see Checks
 
 | 2026-10-17 | Shorts never fall back to a `#shorts` search; with too few Shorts from subscriptions the screen asks the user to subscribe. | Jordan ("Replace the random Shorts fallback with a 'Subscribe to channels' prompt.") | On a clean profile the fallback showed strangers' videos, including a family video with children. |
 | 2026-11-01 | Adopt HackerTube's ideas: lasting-interest ranking, reason lines, frame thumbnails, bundled HN picks, community topic chips, Takeout history import; Continue watching moves to the You page. | Jordan ("Can we adopt this into the app", picked all four options, added the community lists and the Takeout import, "let's apply all of this learning") | Better recommendations without an account; everything stays on the device. |
+| 2026-11-02 | YouFlow goes on F-Droid. F-Droid builds it from our source and signs it, which fits "source only": we still publish no APK and hold no signing key in the repo. | Jordan ("Yes, it should. go on f-droid.") | The only way most people will install it without building it themselves. |
+| 2026-11-02 | GitHub Issues and Discussions stay off; the unused release keystore is kept; "the Vestibule" is dropped. | Jordan ("No.", "Keep it.", "Leave it.") | His call after the launch results. |
 | 2026-10-17 | YouFlow stays a GitHub fork of NewPipe; it does not leave the fork network. | Jordan ("Keep YouFlow as a fork of NewPipe.") | Known effect: GitHub search hides forks by default, so discovery comes from the X post and the repo topics, not GitHub search. |
 
 ## Checks
